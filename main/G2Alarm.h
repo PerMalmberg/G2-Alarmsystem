@@ -9,6 +9,7 @@
 #include <smooth/core/io/InterruptInput.h>
 #include <smooth/application/io/MCP23017.h>
 #include <smooth/application/io/ADS1115.h>
+#include "AnalogCycler.h"
 
 class G2Alarm
         : public smooth::core::Application,
@@ -27,9 +28,11 @@ class G2Alarm
         smooth::core::io::i2c::Master analog_i2c_master;
         std::unique_ptr<smooth::application::io::MCP23017> digital_io{};
         smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 5> input_change_queue;
+        smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 5> analog_change_queue;
         smooth::core::io::InterruptInput digital_input_change;
-        //std::unique_ptr<smooth::application::io::ADS1115> analog_io_1{};
-        //smooth::core::io::InterruptInput analog_change_1;
+        smooth::core::io::InterruptInput analog_change_1;
+        std::unique_ptr<AnalogCycler> cycler_1{};
 
+        void update_inputs();
 };
 

@@ -8,25 +8,27 @@
 #include <smooth/core/util/ByteSet.h>
 #include <driver/i2c.h>
 #include <chrono>
+#include <smooth/core/util/make_unique.h>
 
 using namespace std::chrono;
 using namespace smooth::core::io;
 using namespace smooth::core::logging;
+using namespace smooth::core::util;
 using namespace smooth::application::io;
 
 static const gpio_num_t DIGITAL_CHANGE_PIN = GPIO_NUM_33;
 static const gpio_num_t ANALOG_CHANGE_PIN_1 = GPIO_NUM_34;
 
 G2Alarm::G2Alarm()
-        : Application(5, seconds(1)),
+        : Application(5, milliseconds(1000)),
           i2c_power(GPIO_NUM_27, true, false, true),
           digital_i2c_master(I2C_NUM_0, GPIO_NUM_16, false, GPIO_NUM_17, false, 100000),
           analog_i2c_master(I2C_NUM_1, GPIO_NUM_25, false, GPIO_NUM_26, false, 1000000),
           input_change_queue(*this, *this),
-          digital_input_change(input_change_queue, DIGITAL_CHANGE_PIN, false, false, GPIO_INTR_ANYEDGE)//,
-          //analog_change_1(input_change_queue, ANALOG_CHANGE_PIN_1, true, false)
+          analog_change_queue(*this, *this),
+          digital_input_change(input_change_queue, DIGITAL_CHANGE_PIN, false, false, GPIO_INTR_ANYEDGE),
+          analog_change_1(analog_change_queue, ANALOG_CHANGE_PIN_1, false, false, GPIO_INTR_NEGEDGE)
 {
-
 }
 
 void G2Alarm::init()
@@ -72,36 +74,15 @@ void G2Alarm::init()
         Log::error("DigitalIO", Format("Not present"));
     }
 
-//    analog_io_1 = analog_i2c_master.create_device<ADS1115>(0x48);
-//
-//    if (analog_io_1->is_present())
-//    {
-//        auto conf = analog_io_1->configure(ADS1115::Multiplexer::Single_AIN1,
-//                               ADS1115::Range::FSR_6_144,
-//                               ADS1115::OperationalMode::Continuous,
-//                               ADS1115::DataRate::SPS_32,
-//                               ADS1115::ComparatorMode::Traditional,
-//                               ADS1115::Alert_Ready_Polarity::ActiveLow,
-//                               ADS1115::LatchingComparator::NonLatching,
-//                               ADS1115::AssertStrategy::AssertAfterFourConversion,
-//                               0,
-//                               0);
-//
-//        Log::info("AnalogIO", Format("Configure: {1}", Bool(conf)));
-//    }
-//    else
-//    {
-//        Log::error("AnalogIO", Format("Not present"));
-//    }
+    cycler_1 = make_unique<AnalogCycler>(analog_i2c_master.create_device<ADS1115>(0x48));
+
+    // Read inputs once on startup to clear waiting interrupts on the i2c devices.
+    update_inputs();
 }
 
 void G2Alarm::tick()
 {
-//    uint8_t pin;
-//    if (digital_io->read_input(MCP23017::Port::A, pin))
-//    {
-//        Log::info("DI", Format("{1} {2}", Int32(pin), Bool(digital_io->set_output(MCP23017::Port::B, static_cast<uint8_t>(pin)))));
-//    }
+    cycler_1->trigger_read();
 }
 
 void G2Alarm::event(const smooth::core::io::InterruptInputEvent& ev)
@@ -110,15 +91,24 @@ void G2Alarm::event(const smooth::core::io::InterruptInputEvent& ev)
 
     if (ev.get_io() == DIGITAL_CHANGE_PIN)
     {
-        Log::info("Digital", Format("kfkf"));
         uint8_t pin;
         if (digital_io->read_interrupt_capture(MCP23017::Port::A, pin))
         {
-            Log::info("DI", Format("{1} {2}", Int32(pin), Bool(digital_io->set_output(MCP23017::Port::B, static_cast<uint8_t>(pin)))));
+            Log::info("DI", Format("{1} {2}", Bool(ev.get_state()),
+                                   Bool(digital_io->set_output(MCP23017::Port::B, static_cast<uint8_t>(pin)))));
         }
     }
-    else if(ev.get_io() == ANALOG_CHANGE_PIN_1)
+    else if (ev.get_io() == ANALOG_CHANGE_PIN_1)
     {
-        Log::info("Analog", Format("asdf"));
+        uint16_t result = cycler_1->get_value();
+        Log::info("Analog", Format("{1} {2}", Int32(cycler_1->get_input_number()), UInt32(result)));
+        cycler_1->cycle();
     }
+}
+
+void G2Alarm::update_inputs()
+{
+    uint8_t digital;
+    digital_io->read_input(MCP23017::Port::A, digital);
+    cycler_1->cycle();
 }
