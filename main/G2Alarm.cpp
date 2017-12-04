@@ -21,7 +21,7 @@ static const gpio_num_t ANALOG_CHANGE_PIN_1 = GPIO_NUM_34;
 static const gpio_num_t ANALOG_CHANGE_PIN_2 = GPIO_NUM_35;
 
 G2Alarm::G2Alarm()
-        : Application(5, milliseconds(200)),
+        : Application(5, milliseconds(1000)),
           i2c_power(GPIO_NUM_27, true, false, true),
           level_shifter_enable(GPIO_NUM_5, true, false, true),
           digital_i2c_master(I2C_NUM_0, GPIO_NUM_16, false, GPIO_NUM_17, false, 100000),
@@ -32,7 +32,8 @@ G2Alarm::G2Alarm()
           digital_input_change(input_change_queue, DIGITAL_CHANGE_PIN, false, false, GPIO_INTR_ANYEDGE),
           analog_change_1(analog_change_queue_1, ANALOG_CHANGE_PIN_1, false, false, GPIO_INTR_NEGEDGE),
           analog_change_2(analog_change_queue_2, ANALOG_CHANGE_PIN_2, false, false, GPIO_INTR_NEGEDGE),
-          rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B())
+          rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B()),
+          control_panel(*this)
 {
 }
 
@@ -108,15 +109,13 @@ void G2Alarm::tick()
         rgb.set_pixel(i, 0, 0, 0);
     }
 
-    rgb.set_pixel(rgb_count, 0x45, 0x34, 0x00 );
+    rgb.set_pixel(rgb_count, 0x22, 0x17, 0x00 );
 
     rgb.apply();
 }
 
 void G2Alarm::event(const smooth::core::io::InterruptInputEvent& ev)
 {
-    Log::info("-----", Format("-----"));
-
     if (ev.get_io() == DIGITAL_CHANGE_PIN)
     {
         uint8_t pin;

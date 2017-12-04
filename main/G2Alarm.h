@@ -11,6 +11,7 @@
 #include <smooth/application/io/ADS1115.h>
 #include <smooth/application/rgb_led/RGBLed.h>
 #include "AnalogCycler.h"
+#include "Wiegand.h"
 
 class G2Alarm
         : public smooth::core::Application,
@@ -38,6 +39,7 @@ class G2Alarm
         std::unique_ptr<AnalogCycler> cycler_1{};
         std::unique_ptr<AnalogCycler> cycler_2{};
         smooth::application::rgb_led::RGBLed rgb;
+        Wiegand control_panel;
 
         uint8_t out = 0;
         uint16_t rgb_count = 0;
