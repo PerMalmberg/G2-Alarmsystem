@@ -17,11 +17,11 @@ static const gpio_num_t D0 = GPIO_NUM_0;
 static const gpio_num_t D1 = GPIO_NUM_4;
 static const std::chrono::milliseconds timeout(25);
 
-Wiegand::Wiegand(smooth::core::Task& task)
-        : d0_queue(task, *this),
-          d1_queue(task, *this),
-          d0(d0_queue, GPIO_NUM_0, false, false, GPIO_INTR_NEGEDGE),
-          d1(d1_queue, GPIO_NUM_4, false, false, GPIO_INTR_NEGEDGE),
+Wiegand::Wiegand(smooth::core::Task& task, IWiegandSignal& receiver)
+        : receiver(receiver),
+          bit_queue(task, *this),
+          d0(bit_queue, GPIO_NUM_0, false, false, GPIO_INTR_NEGEDGE),
+          d1(bit_queue, GPIO_NUM_4, false, false, GPIO_INTR_NEGEDGE),
           line_silent("WiegandLineSilent", 5, task, *this),
           expire(Timer::create("WiegandLineSilent", 1, line_silent, false, milliseconds(25)))
 {
@@ -30,34 +30,21 @@ Wiegand::Wiegand(smooth::core::Task& task)
 void Wiegand::event(const smooth::core::io::InterruptInputEvent& event)
 {
     expire->start(timeout);
-    bit_count++;
+    ++bit_count;
     data <<= 1;
-    data.set(data.size() - 1, event.get_io() == D1);
-    Log::info("event", Format("{1}", UInt32(bit_count)));
+    data.set(0, event.get_io() == D1);
 }
 
 void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
 {
-    Log::info("Wiegand", Format("{1}", UInt32(bit_count)));
-
-    bit_count = 0;
-
-    if (bit_count == 8)
+    if (bit_count == 4)
     {
         // Keyboard data
-        auto high = data.to_ulong() & 0x0F;
-        auto low = data.to_ulong() & 0xF0;
-
-        Log::info("QQQ", Format("Low: {1}, High: {2}, ~Low: {3}", UInt32(low), UInt32(high), UInt32(~low)));
-
-        if (high == ~low)
-        {
-
-        }
-
+        receiver.number(static_cast<uint8_t>(data.to_ulong() & 0xF));
     }
 
 
+    bit_count = 0;
     data.reset();
 
 

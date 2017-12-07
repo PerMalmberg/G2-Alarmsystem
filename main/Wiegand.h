@@ -8,18 +8,19 @@
 #include <smooth/core/ipc/ITaskEventQueue.h>
 #include <smooth/core/timer/Timer.h>
 #include <memory>
+#include "IWiegandSignal.h"
 
 class Wiegand : public smooth::core::ipc::IEventListener<smooth::core::io::InterruptInputEvent>,
                 public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
 {
     public:
-        Wiegand(smooth::core::Task& task);
+        Wiegand(smooth::core::Task& task, IWiegandSignal& receiver);
         void event(const smooth::core::io::InterruptInputEvent& event) override;
         void event(const smooth::core::timer::TimerExpiredEvent& event) override;
 
     private:
-        smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 40> d0_queue;
-        smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 40> d1_queue;
+        IWiegandSignal& receiver;
+        smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 40> bit_queue;
         smooth::core::io::InterruptInput d0;
         smooth::core::io::InterruptInput d1;
         std::bitset<34> data{};

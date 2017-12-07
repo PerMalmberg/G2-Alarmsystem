@@ -33,7 +33,7 @@ G2Alarm::G2Alarm()
           analog_change_1(analog_change_queue_1, ANALOG_CHANGE_PIN_1, false, false, GPIO_INTR_NEGEDGE),
           analog_change_2(analog_change_queue_2, ANALOG_CHANGE_PIN_2, false, false, GPIO_INTR_NEGEDGE),
           rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B()),
-          control_panel(*this)
+          control_panel(*this, *this)
 {
 }
 
@@ -93,25 +93,25 @@ void G2Alarm::init()
 
 void G2Alarm::tick()
 {
-    if (++out == 8)
-    {
-        out = 0;
-    }
-    digital_io->set_output(MCP23017::Port::B, static_cast<uint8_t>(1 << out));
-
-    if (++rgb_count == 5)
-    {
-        rgb_count = 0;
-    }
-
-    for (uint16_t i = 0; i < 5; ++i)
-    {
-        rgb.set_pixel(i, 0, 0, 0);
-    }
-
-    rgb.set_pixel(rgb_count, 0x22, 0x17, 0x00 );
-
-    rgb.apply();
+//    if (++out == 8)
+//    {
+//        out = 0;
+//    }
+//    digital_io->set_output(MCP23017::Port::B, static_cast<uint8_t>(1 << out));
+//
+//    if (++rgb_count == 5)
+//    {
+//        rgb_count = 0;
+//    }
+//
+//    for (uint16_t i = 0; i < 5; ++i)
+//    {
+//        rgb.set_pixel(i, 0, 0, 0);
+//    }
+//
+//    rgb.set_pixel(rgb_count, 0x22, 0x17, 0x00 );
+//
+//    rgb.apply();
 }
 
 void G2Alarm::event(const smooth::core::io::InterruptInputEvent& ev)
@@ -132,7 +132,7 @@ void G2Alarm::event(const smooth::core::io::InterruptInputEvent& ev)
         cycler_1->cycle();
 
         // Trigger read of other device
-        cycler_2->trigger_read();
+        //cycler_2->trigger_read();
     }
     else if (ev.get_io() == ANALOG_CHANGE_PIN_2)
     {
@@ -141,7 +141,7 @@ void G2Alarm::event(const smooth::core::io::InterruptInputEvent& ev)
         cycler_2->cycle();
 
         // Trigger read of other device
-        cycler_1->trigger_read();
+        //cycler_1->trigger_read();
     }
 }
 
@@ -151,4 +151,29 @@ void G2Alarm::update_inputs()
     digital_io->read_input(MCP23017::Port::A, digital);
     cycler_1->cycle();
     cycler_2->cycle();
+}
+
+void G2Alarm::number(uint8_t number)
+{
+    digital_io->set_output(MCP23017::Port::B, number);
+
+    rgb.clear();
+
+    if (number & 1)
+    {
+        rgb.set_pixel(0, 22, 0, 22);
+    }
+    if (number & 2)
+    {
+        rgb.set_pixel(1, 22, 0, 22);
+    }
+    if (number & 4)
+    {
+        rgb.set_pixel(2, 22, 0, 22);
+    }
+    if (number & 8)
+    {
+        rgb.set_pixel(3, 22, 0, 22);
+    }
+    rgb.apply();
 }

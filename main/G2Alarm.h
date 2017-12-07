@@ -15,7 +15,8 @@
 
 class G2Alarm
         : public smooth::core::Application,
-          public smooth::core::ipc::IEventListener<smooth::core::io::InterruptInputEvent>
+          public smooth::core::ipc::IEventListener<smooth::core::io::InterruptInputEvent>,
+          public IWiegandSignal
 {
     public:
         G2Alarm();
@@ -23,6 +24,8 @@ class G2Alarm
         void init() override;
 
         void event(const smooth::core::io::InterruptInputEvent& ev);
+
+        void number(uint8_t number);
 
     private:
         smooth::core::io::Output i2c_power;
