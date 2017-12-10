@@ -39,11 +39,14 @@ void G2Alarm::init()
     level_shifter_enable.set();
 
     mqtt.connect_to(std::make_shared<IPv4>("192.168.10.245", 1883), true);
+
+    i2c = make_unique<I2CTask>();
+    i2c->start();
 }
 
 void G2Alarm::tick()
 {
-    //mqtt.publish("Wiegand/foo", "asdf", QoS::AT_MOST_ONCE, false);
+
 }
 
 

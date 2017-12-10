@@ -14,6 +14,7 @@
 #include <smooth/application/network/mqtt/MqttClient.h>
 #include "AnalogCycler.h"
 #include "Wiegand.h"
+#include "I2CTask.h"
 
 class G2Alarm
         : public smooth::core::Application,
@@ -36,6 +37,7 @@ class G2Alarm
         Wiegand control_panel;
         smooth::core::ipc::TaskEventQueue<smooth::application::network::mqtt::MQTTData> mqtt_data;
         smooth::application::network::mqtt::MqttClient mqtt;
+        std::unique_ptr<I2CTask> i2c{};
 
 };
 
