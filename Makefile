@@ -4,6 +4,6 @@
 #
 
 PROJECT_NAME := G2-Alarm
-
+CXXFLAGS=-std=c++11
 include $(IDF_PATH)/make/project.mk
 
