@@ -23,13 +23,17 @@ Wiegand::Wiegand(smooth::core::Task& task, IWiegandSignal& receiver)
           d0(bit_queue, GPIO_NUM_0, false, false, GPIO_INTR_NEGEDGE),
           d1(bit_queue, GPIO_NUM_4, false, false, GPIO_INTR_NEGEDGE),
           line_silent("WiegandLineSilent", 5, task, *this),
-          expire(Timer::create("WiegandLineSilent", 1, line_silent, false, milliseconds(25)))
+          expire(Timer::create("WiegandLineSilent",
+                               1,
+                               line_silent,
+                               false,
+                               milliseconds(100)))
 {
 }
 
 void Wiegand::event(const smooth::core::io::InterruptInputEvent& event)
 {
-    expire->start(timeout);
+    expire->start();
     ++bit_count;
     data <<= 1;
     data.set(0, event.get_io() == D1);
@@ -58,9 +62,9 @@ void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
         std::bitset<13> upper(data.to_ulong() >> 13);
         std::bitset<13> lower(data.to_ulong() & 0x1FFF);
 
-        // Validate it is even parity on upper part
+        // Validate even parity on upper part...
         bool valid = (upper.count() & 1) == 0;
-        // And odd parity on lower part
+        // ...and odd parity on lower part
         valid &= lower.count() & 1;
 
         if (valid)
