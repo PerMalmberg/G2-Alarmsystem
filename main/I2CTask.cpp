@@ -111,7 +111,7 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
         cycler_1->cycle();
 
         // Trigger read of other device
-        //cycler_2->trigger_read();
+        cycler_2->trigger_read();
     }
     else if (ev.get_io() == ANALOG_CHANGE_PIN_2)
     {
@@ -120,7 +120,7 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
         cycler_2->cycle();
 
         // Trigger read of other device
-        //cycler_1->trigger_read();
+        cycler_1->trigger_read();
     }
 }
 
