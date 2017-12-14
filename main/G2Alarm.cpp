@@ -27,6 +27,8 @@ G2Alarm::G2Alarm()
           level_shifter_enable(GPIO_NUM_5, true, false, true),
           rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B()),
           control_panel(*this, *this),
+          analog_data("AnalogData", 25, *this, *this),
+          digital_data("DigitalData", 25, *this, *this),
           mqtt_data("MQTTData", 10, *this, *this),
           mqtt("Alarm", seconds(10), 4096, 5, mqtt_data)
 {
@@ -66,4 +68,14 @@ void G2Alarm::id(uint32_t id, uint8_t byte_count)
 void G2Alarm::event(const smooth::application::network::mqtt::MQTTData& event)
 {
 
+}
+
+void G2Alarm::event(const AnalogValue& event)
+{
+    Log::info("Analog", Format("Input: {1}, Value {2}", Int32(event.get_input()), Int32(event.get_value())));
+}
+
+void G2Alarm::event(const DigitalValue& event)
+{
+    Log::info("Digital", Format("Input: {1}, Value {2}", UInt32(event.get_input()), Bool(event.get_value())));
 }

@@ -15,11 +15,16 @@
 #include "AnalogCycler.h"
 #include "Wiegand.h"
 #include "I2CTask.h"
+#include "AnalogValue.h"
+#include "DigitalValue.h"
+#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 
 class G2Alarm
         : public smooth::core::Application,
           public IWiegandSignal,
-          public smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>
+          public smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>,
+          public smooth::core::ipc::IEventListener<AnalogValue>,
+          public smooth::core::ipc::IEventListener<DigitalValue>
 {
     public:
         G2Alarm();
@@ -27,6 +32,8 @@ class G2Alarm
         void init() override;
 
         void event(const smooth::application::network::mqtt::MQTTData& event) override;
+        void event(const AnalogValue& event) override;
+        void event(const DigitalValue& event) override;
 
         void number(uint8_t number) override;
         void id(uint32_t id, uint8_t byte_count) override;
@@ -35,9 +42,10 @@ class G2Alarm
         smooth::core::io::Output level_shifter_enable;
         smooth::application::rgb_led::RGBLed rgb;
         Wiegand control_panel;
+        smooth::core::ipc::SubscribingTaskEventQueue<AnalogValue> analog_data;
+        smooth::core::ipc::SubscribingTaskEventQueue<DigitalValue> digital_data;
         smooth::core::ipc::TaskEventQueue<smooth::application::network::mqtt::MQTTData> mqtt_data;
         smooth::application::network::mqtt::MqttClient mqtt;
         std::unique_ptr<I2CTask> i2c{};
-
 };
 

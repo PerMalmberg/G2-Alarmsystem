@@ -10,12 +10,16 @@
 #include <chrono>
 #include <thread>
 #include <smooth/core/util/make_unique.h>
+#include <smooth/core/ipc/Publisher.h>
+#include "AnalogValue.h"
+#include "DigitalValue.h"
 
 using namespace std::chrono;
 using namespace smooth::core::io;
 using namespace smooth::core::logging;
 using namespace smooth::core::util;
 using namespace smooth::application::io;
+using namespace smooth::core::ipc;
 
 static const gpio_num_t DIGITAL_CHANGE_PIN = GPIO_NUM_33;
 static const gpio_num_t ANALOG_CHANGE_PIN_1 = GPIO_NUM_34;
@@ -98,16 +102,24 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
 {
     if (ev.get_io() == DIGITAL_CHANGE_PIN)
     {
-        uint8_t pin;
-        if (digital_io->read_interrupt_capture(MCP23017::Port::A, pin))
+        uint8_t pins;
+        if (digital_io->read_interrupt_capture(MCP23017::Port::A, pins))
         {
-
+            for (uint8_t i = 0; i < 8; ++i)
+            {
+                DigitalValue dv(i, pins & 1);
+                Publisher<DigitalValue>::publish(dv);
+                pins >>= 1;
+            }
         }
     }
     else if (ev.get_io() == ANALOG_CHANGE_PIN_1)
     {
         uint16_t result = cycler_1->get_value();
-        Log::info("Analog1", Format("{1} {2}", Int32(cycler_1->get_input_number()), UInt32(result)));
+
+        AnalogValue av(10 + cycler_1->get_input_number(), result);
+        Publisher<AnalogValue>::publish(av);
+
         cycler_1->cycle();
 
         // Trigger read of other device
@@ -116,7 +128,9 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
     else if (ev.get_io() == ANALOG_CHANGE_PIN_2)
     {
         uint16_t result = cycler_2->get_value();
-        Log::info("Analog2", Format("{1} {2}", Int32(cycler_2->get_input_number()), UInt32(result)));
+        AnalogValue av(20 + cycler_1->get_input_number(), result);
+        Publisher<AnalogValue>::publish(av);
+
         cycler_2->cycle();
 
         // Trigger read of other device
