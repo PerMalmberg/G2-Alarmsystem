@@ -105,12 +105,7 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
         uint8_t pins;
         if (digital_io->read_interrupt_capture(MCP23017::Port::A, pins))
         {
-            for (uint8_t i = 0; i < 8; ++i)
-            {
-                DigitalValue dv(i, pins & 1);
-                Publisher<DigitalValue>::publish(dv);
-                pins >>= 1;
-            }
+            publish_digital(pins);
         }
     }
     else if (ev.get_io() == ANALOG_CHANGE_PIN_1)
@@ -128,7 +123,7 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
     else if (ev.get_io() == ANALOG_CHANGE_PIN_2)
     {
         uint16_t result = cycler_2->get_value();
-        AnalogValue av(20 + cycler_1->get_input_number(), result);
+        AnalogValue av(20 + cycler_2->get_input_number(), result);
         Publisher<AnalogValue>::publish(av);
 
         cycler_2->cycle();
@@ -142,6 +137,18 @@ void I2CTask::update_inputs()
 {
     uint8_t digital;
     digital_io->read_input(MCP23017::Port::A, digital);
+    publish_digital(digital);
     cycler_1->cycle();
     cycler_2->cycle();
+}
+
+void I2CTask::publish_digital(uint8_t pins)
+{
+
+    for (uint8_t i = 0; i < 8; ++i)
+    {
+        DigitalValue dv(i, pins & 1);
+        Publisher<DigitalValue>::publish(dv);
+        pins >>= 1;
+    }
 }
