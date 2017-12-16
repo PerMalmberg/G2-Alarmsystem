@@ -12,8 +12,19 @@ include_directories(main
                     components/Smooth/include)
 
 set(SOURCE_FILES
+        main/AnalogCycler.cpp
+        main/AnalogCycler.h
+        main/AnalogValue.h
+        main/DigitalValue.h
         main/main.cpp
-        main/G2Alarm.cpp main/G2Alarm.h)
+        main/G2Alarm.cpp
+        main/G2Alarm.h
+        main/I2CTask.cpp
+        main/IOStatus.cpp
+        main/IOStatus.h
+        main/IWiegandSignal.h
+        main/Wiegand.cpp
+        )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 #add_subdirectory(components/Smooth)

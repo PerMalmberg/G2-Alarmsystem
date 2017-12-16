@@ -30,7 +30,8 @@ G2Alarm::G2Alarm()
           analog_data("AnalogData", 25, *this, io_status),
           digital_data("DigitalData", 25, *this, io_status),
           mqtt_data("MQTTData", 10, *this, *this),
-          mqtt("Alarm", seconds(10), 4096, 5, mqtt_data)
+          mqtt("Alarm", seconds(10), 4096, 5, mqtt_data),
+          general_message("General message", 10, *this, *this)
 {
 }
 
@@ -40,6 +41,7 @@ void G2Alarm::init()
 
     level_shifter_enable.set();
 
+    mqtt.subscribe("Alarm/#", QoS::EXACTLY_ONCE);
     mqtt.connect_to(std::make_shared<IPv4>("192.168.10.245", 1883), true);
 
     i2c = make_unique<I2CTask>();
@@ -67,6 +69,21 @@ void G2Alarm::id(uint32_t id, uint8_t byte_count)
 
 void G2Alarm::event(const smooth::application::network::mqtt::MQTTData& event)
 {
+    if(event.first == "Alarm/arm")
+    {
+        auto payload = MqttClient::get_payload(event);
+        if(payload == "1")
+        {
+            Log::info("ARMED", Format("1"));
+            io_status.arm();
+        }
+    }
+}
 
+void G2Alarm::event(const std::pair<std::string, int64_t>& event)
+{
+    std::stringstream ss;
+    ss << event.second;
+    mqtt.publish(event.first, ss.str(), QoS::AT_MOST_ONCE, false);
 }
 

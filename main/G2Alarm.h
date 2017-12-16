@@ -23,7 +23,8 @@
 class G2Alarm
         : public smooth::core::Application,
           public IWiegandSignal,
-          public smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>
+          public smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>,
+          public smooth::core::ipc::IEventListener<std::pair<std::string, int64_t>>
 {
     public:
         G2Alarm();
@@ -31,6 +32,7 @@ class G2Alarm
         void init() override;
 
         void event(const smooth::application::network::mqtt::MQTTData& event) override;
+        void event(const std::pair<std::string, int64_t>& event) override;
 
         void number(uint8_t number) override;
         void id(uint32_t id, uint8_t byte_count) override;
@@ -45,5 +47,6 @@ class G2Alarm
         smooth::core::ipc::TaskEventQueue<smooth::application::network::mqtt::MQTTData> mqtt_data;
         smooth::application::network::mqtt::MqttClient mqtt;
         std::unique_ptr<I2CTask> i2c{};
+        smooth::core::ipc::SubscribingTaskEventQueue<std::pair<std::string, int64_t>> general_message;
 };
 

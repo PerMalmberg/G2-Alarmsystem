@@ -3,13 +3,7 @@
 //
 
 #include "I2CTask.h"
-#include <smooth/core/io/i2c/Master.h>
-#include <smooth/core/logging/log.h>
 #include <smooth/core/util/ByteSet.h>
-#include <driver/i2c.h>
-#include <chrono>
-#include <thread>
-#include <smooth/core/util/make_unique.h>
 #include <smooth/core/ipc/Publisher.h>
 #include "AnalogValue.h"
 #include "DigitalValue.h"
@@ -26,7 +20,7 @@ static const gpio_num_t ANALOG_CHANGE_PIN_1 = GPIO_NUM_34;
 static const gpio_num_t ANALOG_CHANGE_PIN_2 = GPIO_NUM_35;
 
 I2CTask::I2CTask()
-        : Task("I2CTask", 8096, 5, milliseconds(1000)),
+        : Task("I2CTask", 8096, 5, milliseconds(100)),
           i2c_power(GPIO_NUM_27, true, false, true),
           digital_i2c_master(I2C_NUM_0, GPIO_NUM_16, false, GPIO_NUM_17, false, 100000),
           analog_i2c_master(I2C_NUM_1, GPIO_NUM_25, false, GPIO_NUM_26, false, 1000000),
@@ -87,15 +81,12 @@ void I2CTask::init()
 
     // Read inputs once on startup to clear waiting interrupts on the i2c devices.
     update_inputs();
-
-    // get the ball rolling
-    cycler_1->trigger_read();
-    cycler_2->trigger_read();
 }
 
 void I2CTask::tick()
 {
-
+    cycler_1->trigger_read();
+    cycler_2->trigger_read();
 }
 
 void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
@@ -116,9 +107,6 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
         Publisher<AnalogValue>::publish(av);
 
         cycler_1->cycle();
-
-        // Trigger read of other device
-        cycler_2->trigger_read();
     }
     else if (ev.get_io() == ANALOG_CHANGE_PIN_2)
     {
@@ -127,9 +115,6 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
         Publisher<AnalogValue>::publish(av);
 
         cycler_2->cycle();
-
-        // Trigger read of other device
-        cycler_1->trigger_read();
     }
 }
 
@@ -147,7 +132,7 @@ void I2CTask::publish_digital(uint8_t pins)
 
     for (uint8_t i = 0; i < 8; ++i)
     {
-        DigitalValue dv(i, pins & 1);
+        DigitalValue dv(i, static_cast<bool>(pins & 1));
         Publisher<DigitalValue>::publish(dv);
         pins >>= 1;
     }
