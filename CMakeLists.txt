@@ -64,7 +64,11 @@ set(COMPONENTS
 set(COMPONENT_INCLUDE_DIRS "")
 
 foreach (COMP ${COMPONENTS})
-    list(APPEND COMPONENT_INCLUDE_DIRS ${IDF_PATH}/components/${COMP}/include)
+    if(EXISTS ${IDF_PATH}/components/${COMP}/include)
+        list(APPEND COMPONENT_INCLUDE_DIRS ${IDF_PATH}/components/${COMP}/include)
+    else()
+        list(APPEND COMPONENT_INCLUDE_DIRS ${IDF_PATH}/components/${COMP})
+    endif()
 endforeach ()
 
 include_directories(${COMPONENT_INCLUDE_DIRS})

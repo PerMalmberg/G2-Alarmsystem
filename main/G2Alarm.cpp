@@ -23,7 +23,7 @@ using namespace smooth::core::network;
 using namespace smooth::application::network::mqtt;
 
 G2Alarm::G2Alarm()
-        : Application(APPLICATION_BASE_PRIO, milliseconds(50)),
+        : Application(APPLICATION_BASE_PRIO, milliseconds(1000)),
           level_shifter_enable(GPIO_NUM_5, true, false, true),
           rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B()),
           control_panel(*this, *this),
@@ -50,7 +50,10 @@ void G2Alarm::init()
 
 void G2Alarm::tick()
 {
-
+    static bool toggle = false;
+    rgb.set_pixel(0, 0, static_cast<uint8_t>(toggle ? 0 : 5), 0);
+    rgb.apply();
+    toggle = !toggle;
 }
 
 
