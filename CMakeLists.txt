@@ -27,7 +27,7 @@ set(SOURCE_FILES
         )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-#add_subdirectory(components/Smooth)
+add_subdirectory(components/Smooth)
 
 target_link_libraries(${PROJECT_NAME} Smooth)
 
@@ -58,6 +58,7 @@ set(COMPONENTS
         tcpip_adapter
         lwip
         openssl
+        json
         )
 
 set(COMPONENT_INCLUDE_DIRS "")

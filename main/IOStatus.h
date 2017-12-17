@@ -9,12 +9,11 @@
 #include <smooth/core/ipc/Publisher.h>
 
 class IOStatus
-        :
-                public smooth::core::ipc::IEventListener<AnalogValue>,
-                public smooth::core::ipc::IEventListener<DigitalValue>
+        : public smooth::core::ipc::IEventListener<AnalogValue>,
+          public smooth::core::ipc::IEventListener<DigitalValue>
 {
     public:
-        IOStatus();
+        IOStatus() = default;
 
         void event(const AnalogValue& event) override;
         void event(const DigitalValue& event) override;
@@ -60,16 +59,6 @@ class IOStatus
 
                     int64_t diff = std::max(prev, curr) - std::min(prev, curr);
                     res &= diff < max_diff;
-
-                    if( diff > 0)
-                    {
-                        std::stringstream ss;
-                        ss << "AnalogDiff/";
-                        ss << prev_pair.first;
-                        auto p = std::make_pair(ss.str(), diff);
-                        smooth::core::ipc::Publisher<std::pair<std::string, int64_t>>::publish(p);
-                    }
-
                 }
             }
 

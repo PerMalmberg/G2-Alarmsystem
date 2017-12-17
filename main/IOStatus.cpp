@@ -1,12 +1,6 @@
 #include "IOStatus.h"
-#include <smooth/core/ipc/Publisher.h>
 
 using namespace smooth::core::logging;
-
-IOStatus::IOStatus()
-{
-
-}
 
 void IOStatus::event(const AnalogValue& event)
 {
