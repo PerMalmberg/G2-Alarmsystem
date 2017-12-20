@@ -20,6 +20,7 @@
 #include "AnalogValue.h"
 #include "DigitalValue.h"
 #include "IOStatus.h"
+#include "CommandDispatcher.h"
 
 
 class G2Alarm
@@ -50,5 +51,7 @@ class G2Alarm
         smooth::application::network::mqtt::MqttClient mqtt;
         std::unique_ptr<I2CTask> i2c{};
         smooth::core::ipc::SubscribingTaskEventQueue<std::pair<std::string, int64_t>> general_message;
+        CommandDispatcher command_dispatcher{};
+
 };
 

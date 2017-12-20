@@ -12,12 +12,14 @@
 #include <smooth/core/util/make_unique.h>
 #include "wifi-creds.h"
 #include <smooth/core/task_priorities.h>
+#include <smooth/core/filesystem/File.h>
 
 using namespace std::chrono;
 using namespace smooth::core;
 using namespace smooth::core::io;
 using namespace smooth::core::logging;
 using namespace smooth::core::util;
+using namespace smooth::core::filesystem;
 using namespace smooth::application::io;
 using namespace smooth::core::network;
 using namespace smooth::application::network::mqtt;
@@ -39,9 +41,68 @@ void G2Alarm::init()
 {
     smooth::core::Application::init();
 
+    mqtt.subscribe("g2/cmd/#", QoS::EXACTLY_ONCE);
+    command_dispatcher.add_command("g2/cmd/write_config", [this](const std::string& o)
+    {
+        try
+        {
+            File f("/config/config.jsn");
+            if (f.write(o))
+            {
+                mqtt.publish("g2/response/write_config/result", "1", QoS::AT_LEAST_ONCE, false);
+            }
+            else
+            {
+                mqtt.publish("g2/response/write_config/result", "0", QoS::AT_LEAST_ONCE, false);
+            }
+        }
+        catch (std::exception& ex)
+        {
+            mqtt.publish("g2/response/write_config/result", "0", QoS::AT_LEAST_ONCE, false);
+            mqtt.publish("g2/response/write_config/result_message", ex.what(), QoS::AT_LEAST_ONCE, false);
+        }
+    });
+
+    command_dispatcher.add_command("g2/cmd/read_config", [this](const std::string& o)
+    {
+        try
+        {
+            std::vector<uint8_t> data;
+            File f("/config/config.jsn");
+
+            if (f.read(data))
+            {
+                mqtt.publish("g2/response/read_config/data",
+                             data.data(),
+                             static_cast<int>(data.size()),
+                             QoS::AT_LEAST_ONCE, false);
+
+                mqtt.publish("g2/response/read_config/result", "1", QoS::AT_LEAST_ONCE, false);
+            }
+            else
+            {
+                mqtt.publish("g2/response/read_config/result", "0", QoS::AT_LEAST_ONCE, false);
+            }
+
+        }
+        catch (std::exception& ex)
+        {
+            mqtt.publish("g2/response/read_config/result", "0", QoS::AT_LEAST_ONCE, false);
+            mqtt.publish("g2/response/read_config/result_message", ex.what(), QoS::AT_LEAST_ONCE, false);
+        }
+    });
+
+    command_dispatcher.add_command("g2/cmd/arm", [this](const std::string& o)
+    {
+        if (o == "1")
+        {
+            io_status.arm();
+        }
+    });
+
+
     level_shifter_enable.set();
 
-    mqtt.subscribe("Alarm/#", QoS::EXACTLY_ONCE);
     mqtt.connect_to(std::make_shared<IPv4>("192.168.10.245", 1883), true);
 
     i2c = make_unique<I2CTask>();
@@ -72,15 +133,7 @@ void G2Alarm::id(uint32_t id, uint8_t byte_count)
 
 void G2Alarm::event(const smooth::application::network::mqtt::MQTTData& event)
 {
-    if(event.first == "Alarm/arm")
-    {
-        auto payload = MqttClient::get_payload(event);
-        if(payload == "1")
-        {
-            Log::info("ARMED", Format("1"));
-            io_status.arm();
-        }
-    }
+    command_dispatcher.process(event.first, MqttClient::get_payload(event));
 }
 
 void G2Alarm::event(const std::pair<std::string, int64_t>& event)

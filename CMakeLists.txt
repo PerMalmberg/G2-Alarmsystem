@@ -24,7 +24,8 @@ set(SOURCE_FILES
         main/IOStatus.h
         main/IWiegandSignal.h
         main/Wiegand.cpp
-        )
+        main/CommandDispatcher.cpp
+        main/CommandDispatcher.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)
