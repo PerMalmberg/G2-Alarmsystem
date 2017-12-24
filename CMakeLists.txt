@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(SmoothTest)
+project(G2-Alarmsystem)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -25,7 +25,9 @@ set(SOURCE_FILES
         main/IWiegandSignal.h
         main/Wiegand.cpp
         main/CommandDispatcher.cpp
-        main/CommandDispatcher.h)
+        main/CommandDispatcher.h
+        main/Config.cpp
+        main/Config.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)
@@ -59,7 +61,6 @@ set(COMPONENTS
         tcpip_adapter
         lwip
         openssl
-        json
         )
 
 set(COMPONENT_INCLUDE_DIRS "")

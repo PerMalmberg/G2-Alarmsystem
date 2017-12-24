@@ -1,0 +1,56 @@
+{
+  "io": {
+    "naming": {
+      "analog": {
+        "a0": "IR livingroom",
+        "a1": "IR hallway"
+      },
+      "digital": {
+        "input": {
+          "i0": "Front door",
+          "i1": "Side door"
+        },
+        "output": {
+          "o0": "Siren"
+        }
+      }
+    },
+    "reference_values": {
+      "analog": {
+        "a0": {
+          "ref": 1234,
+          "variance": 200
+        },
+        "a1": {
+          "ref": 5678,
+          "variance": 250
+        }
+      },
+      "digital": {
+        "i0": true,
+        "i1": false
+      }
+    },
+    "startup_state": {
+      "digital": {
+        "o0": false,
+        "o1": true
+      }
+    }
+  },
+  "alarm": {
+    "zones": {
+      "night": [
+        "a0",
+        "a1"
+      ],
+      "all": [
+        "a0",
+        "a1",
+        "a2",
+        "a3",
+        "a4"
+      ]
+    }
+  }
+}

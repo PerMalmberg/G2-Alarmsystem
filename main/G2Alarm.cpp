@@ -46,14 +46,22 @@ void G2Alarm::init()
     {
         try
         {
-            File f("/config/config.jsn");
-            if (f.write(o))
+            if(cfg.parse(o))
             {
-                mqtt.publish("g2/response/write_config/result", "1", QoS::AT_LEAST_ONCE, false);
+                File f("/config/config.jsn");
+                if (f.write(o))
+                {
+                    mqtt.publish("g2/response/write_config/result", "1", QoS::AT_LEAST_ONCE, false);
+                }
+                else
+                {
+                    mqtt.publish("g2/response/write_config/result", "0", QoS::AT_LEAST_ONCE, false);
+                }
             }
             else
             {
                 mqtt.publish("g2/response/write_config/result", "0", QoS::AT_LEAST_ONCE, false);
+                mqtt.publish("g2/response/write_config/result_message", "Could not parse config", QoS::AT_LEAST_ONCE, false);
             }
         }
         catch (std::exception& ex)
@@ -105,8 +113,12 @@ void G2Alarm::init()
 
     mqtt.connect_to(std::make_shared<IPv4>("192.168.10.245", 1883), true);
 
+
     i2c = make_unique<I2CTask>();
     i2c->start();
+
+    // Why must there be a task active when reading from flash?
+    read_configuration();
 }
 
 void G2Alarm::tick()
@@ -115,6 +127,13 @@ void G2Alarm::tick()
     rgb.set_pixel(0, 0, static_cast<uint8_t>(toggle ? 0 : 5), 0);
     rgb.apply();
     toggle = !toggle;
+
+    static bool init = false;
+    if(!init)
+    {
+        //read_configuration();
+        init = true;
+    }
 }
 
 
@@ -141,5 +160,27 @@ void G2Alarm::event(const std::pair<std::string, int64_t>& event)
     std::stringstream ss;
     ss << event.second;
     mqtt.publish(event.first, ss.str(), QoS::AT_MOST_ONCE, false);
+}
+
+void G2Alarm::read_configuration()
+{
+    Log::info("Config", Format("Reading configuration file..."));
+    std::vector<uint8_t> data;
+    File f("/config/config.jsn");
+    if(f.read(data))
+    {
+        Log::info("Config", Format("Data read, preparing..."));
+        data.emplace_back(0); // Ensure terminating zero.
+        std::string config_data{reinterpret_cast<const char*>(data.data())};
+
+        if(!cfg.parse(config_data))
+        {
+            Log::error("Config", Format("Could not parse configuration"));
+        }
+    }
+    else
+    {
+        Log::error("Config", Format("Could not read configuration file"));
+    }
 }
 

@@ -21,6 +21,7 @@
 #include "DigitalValue.h"
 #include "IOStatus.h"
 #include "CommandDispatcher.h"
+#include "Config.h"
 
 
 class G2Alarm
@@ -52,6 +53,8 @@ class G2Alarm
         std::unique_ptr<I2CTask> i2c{};
         smooth::core::ipc::SubscribingTaskEventQueue<std::pair<std::string, int64_t>> general_message;
         CommandDispatcher command_dispatcher{};
+        Config cfg{};
 
+        void read_configuration();
 };
 
