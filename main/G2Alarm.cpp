@@ -41,6 +41,8 @@ void G2Alarm::init()
 {
     smooth::core::Application::init();
 
+    read_configuration();
+
     mqtt.subscribe("g2/cmd/#", QoS::EXACTLY_ONCE);
     command_dispatcher.add_command("g2/cmd/write_config", [this](const std::string& o)
     {
@@ -116,9 +118,6 @@ void G2Alarm::init()
 
     i2c = make_unique<I2CTask>();
     i2c->start();
-
-    // Why must there be a task active when reading from flash?
-    read_configuration();
 }
 
 void G2Alarm::tick()
