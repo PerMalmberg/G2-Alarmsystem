@@ -38,19 +38,19 @@ bool Config::parse(const std::string& data)
         {
             std::stringstream ss;
             ss << "a" <<  i;
-            auto name = v["io"]["naming"]["analog"][ss.str()];
-            io_names[ss.str()] = name.get_string(ss.str());
-            Log::info("Analog", Format("Will use name '{1}' for analog input {2}", Str(io_names[ss.str()]), Str(ss.str())));
+            auto input = v["io"]["analog"]["input"][ss.str()];
+            io_names[ss.str()] = input["name"].get_string(ss.str());
+            Log::info("Analog", Format("Will use name '{1}' for analog input {2}", Str(get_custom_name(ss.str())), Str(ss.str())));
 
-            auto ref_root = v["io"]["reference_values"]["analog"][ss.str()];
-            auto ref_value = ref_root["ref"];
-            auto ref_variance = ref_root["variance"];
+            auto idle = input["idle"];
+            auto value = idle["value"].get_int(0);
+            auto variance = idle["variance"].get_int(0);
 
-            analog_ref[ss.str()] = AnalogRef{ref_value.get_int(0), ref_value.get_int(0)};
+            analog_ref[ss.str()] = AnalogRef{value, variance};
             Log::info("Analog", Format("{1} ref value: {2}, variance: {3}",
                                        Str(get_custom_name(ss.str())),
-                                       Int32(ref_value.get_int(0)),
-                                       Int32(ref_variance.get_int(0))));
+                                       Int32(value),
+                                       Int32(variance)));
         }
 
         Log::info("Config", Format("Reading digital input details"));
@@ -59,18 +59,18 @@ bool Config::parse(const std::string& data)
         {
             std::stringstream ss;
             ss << "i" <<  i;
-            auto name = v["io"]["naming"]["digital"]["input"][ss.str()];
-            io_names[ss.str()] = name.get_string(ss.str());
+            auto input = v["io"]["digital"]["input"][ss.str()];
+            io_names[ss.str()] = input["name"].get_string(ss.str());
             Log::info("Digital input", Format("Will use name '{1}' for digital input {2}",
                                               Str(get_custom_name(ss.str())),
                                               Str(ss.str())));
 
-            auto ref = v["io"]["reference_values"]["digital"][ss.str()]["ref"];
+            auto idle = input["idle"]["value"].get_bool(false);
 
-            digital_ref[ss.str()] = ref.get_bool(false);
-            Log::info("Digital", Format("{1} ref value: {2}",
+            digital_idle[ss.str()] = idle;
+            Log::info("Digital", Format("{1} idle value: {2}",
                                        Str(get_custom_name(ss.str())),
-                                       Bool(digital_ref[ss.str()])));
+                                       Bool(digital_idle[ss.str()])));
         }
 
         Log::info("Config", Format("Reading digital output details"));
@@ -79,9 +79,14 @@ bool Config::parse(const std::string& data)
         {
             std::stringstream ss;
             ss << "o" <<  i;
-            auto name = v["io"]["naming"]["digital"]["output"][ss.str()];
-            io_names[ss.str()] = name.get_string(ss.str());
-            Log::info("Digital out", Format("Will use name '{1}' for digital output {2}", Str(io_names[ss.str()]), Str(ss.str())));
+            auto output = v["io"]["digital"]["output"][ss.str()];
+            io_names[ss.str()] = output["name"].get_string(ss.str());
+            digital_startup[ss.str()] = output["startup_state"].get_bool(false);
+            Log::info("Digital out", Format("Will use name '{1}' for digital output {2}", Str(get_custom_name(ss.str())), Str(ss.str())));
+            Log::info("Digital", Format("{1} startup value: {2}",
+                                        Str(get_custom_name(ss.str())),
+                                        Bool(digital_startup[ss.str()])));
+
         }
 
         cJSON_Delete(root);

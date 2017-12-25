@@ -24,5 +24,6 @@ class Config
     private:
         std::unordered_map<std::string, std::string> io_names{};
         std::unordered_map<std::string, AnalogRef> analog_ref{};
-        std::unordered_map<std::string, bool> digital_ref{};
+        std::unordered_map<std::string, bool> digital_idle{};
+        std::unordered_map<std::string, bool> digital_startup{};
 };

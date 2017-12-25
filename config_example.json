@@ -1,44 +1,49 @@
 {
   "io": {
-    "naming": {
-      "analog": {
-        "a0": "IR livingroom",
-        "a1": "IR hallway"
-      },
-      "digital": {
-        "input": {
-          "i0": "Front door",
-          "i1": "Side door"
-        },
-        "output": {
-          "o0": "Siren"
-        }
-      }
-    },
-    "reference_values": {
-      "analog": {
-        "a0": {
-          "ref": 1234,
-          "variance": 200
-        },
-        "a1": {
-          "ref": 5678,
-          "variance": 250
-        }
-      },
-      "digital": {
+    "digital": {
+      "input": {
         "i0": {
-          "ref": true
+          "name": "Front door lock",
+          "idle": {
+            "value": true
+          }
         },
         "i1": {
-          "ref": false
+          "name": "Side door lock",
+          "idle": {
+            "value": false
+          }
+        }
+      },
+      "output": {
+        "o1": {
+          "name": "Siren",
+          "startup_state": false
+        },
+        "o2": {
+          "name": "Flash",
+          "startup_state": true
         }
       }
     },
-    "startup_state": {
-      "digital": {
-        "o0": false,
-        "o1": true
+    "analog": {
+      "input": {
+        "a0":{
+          "name": "IR Hallway",
+          "idle" :
+          {
+            "value" : 1234,
+            "variance": 200
+          }
+        },
+        "a1":{
+          "name": "IR Livingroom",
+          "idle" :
+          {
+            "value" : 4567,
+            "variance": 400
+          }
+        }
       }
     }
   },
