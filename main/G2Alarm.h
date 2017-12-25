@@ -43,6 +43,7 @@ class G2Alarm
 
     private:
         smooth::core::io::Output level_shifter_enable;
+
         smooth::application::rgb_led::RGBLed rgb;
         Wiegand control_panel;
         IOStatus io_status{};

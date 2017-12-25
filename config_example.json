@@ -28,38 +28,34 @@
     },
     "analog": {
       "input": {
-        "a0":{
+        "a0": {
           "name": "IR Hallway",
-          "idle" :
-          {
-            "value" : 1234,
+          "idle": {
+            "value": 1234,
             "variance": 200
           }
         },
-        "a1":{
+        "a1": {
           "name": "IR Livingroom",
-          "idle" :
-          {
-            "value" : 4567,
+          "idle": {
+            "value": 4567,
             "variance": 400
           }
         }
       }
     }
   },
-  "alarm": {
-    "zones": {
-      "night": [
-        "a0",
-        "a1"
-      ],
-      "all": [
-        "a0",
-        "a1",
-        "a2",
-        "a3",
-        "a4"
-      ]
-    }
+  "zones": {
+    "night": [
+      "a0",
+      "a1"
+    ],
+    "all": [
+      "a0",
+      "a1",
+      "a2",
+      "a3",
+      "a4"
+    ]
   }
 }
