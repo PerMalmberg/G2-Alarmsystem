@@ -27,8 +27,12 @@
         }
       },
       "digital": {
-        "i0": true,
-        "i1": false
+        "i0": {
+          "ref": true
+        },
+        "i1": {
+          "ref": false
+        }
       }
     },
     "startup_state": {
