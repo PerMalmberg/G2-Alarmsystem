@@ -1,5 +1,3 @@
-
-
 #include "G2Alarm.h"
 #include "wifi-creds.h"
 

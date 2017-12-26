@@ -6,23 +6,91 @@
 #include "Config.h"
 #include <smooth/core/json/Value.h>
 #include <smooth/core/logging/log.h>
+#include <smooth/core/filesystem/File.h>
 
 
 using namespace smooth::core::json;
 using namespace smooth::core::logging;
+using namespace smooth::core::filesystem;
 
 std::string Config::get_custom_name(const std::string& short_name)
 {
     return io_names[short_name];
 }
 
-bool Config::parse(const std::string& data)
+bool Config::write(const std::string& file)
+{
+    Value v{};
+
+    auto dig_input = v["io"]["digital"]["input"];
+
+    for (const auto& name : digital_input_names)
+    {
+        auto curr = dig_input[name];
+        curr["name"] = io_names[name];
+        curr["idle"]["value"].set(digital_idle[name]);
+    }
+
+    auto dig_output = v["io"]["digital"]["output"];
+    for (const auto& name : digital_output_names)
+    {
+        auto curr = dig_output[name];
+        curr["name"] = io_names[name];
+        curr["startup_state"].set(digital_startup[name]);
+    }
+
+    auto analog_input = v["io"]["analog"]["input"];
+    for (const auto& name : analog_input_names)
+    {
+        auto curr = analog_input[name];
+        curr["name"] = io_names[name];
+        auto idle = curr["idle"];
+        const auto& idle_val = analog_idle[name];
+        idle["value"] = idle_val.value;
+        idle["variance"] = idle_val.variance;
+    }
+
+    auto z = v["zones"];
+    for(auto& zone : zones)
+    {
+        const auto& name = zone.first;
+        const auto& content = zone.second;
+        auto curr = z[name];
+
+        int i=0;
+        for(const auto& input : content)
+        {
+            curr[i++] = input;
+        }
+    }
+
+    File f(file);
+    return f.write(v.to_string());
+}
+
+bool Config::read(const std::string& file)
+{
+    std::vector<uint8_t> data;
+
+    bool res = false;
+
+    File f(file);
+    if (f.read(data))
+    {
+        data.emplace_back(0); // Ensure ending null terminator.
+        res = parse(reinterpret_cast<const char*>(data.data()));
+    }
+
+    return res;
+}
+
+bool Config::parse(const char* data)
 {
     bool res = false;
 
     Log::info("Config", Format("Data prepared, parsing..."));
 
-    auto root = cJSON_Parse(data.c_str());
+    auto root = cJSON_Parse(data);
 
     if (root)
     {
@@ -107,7 +175,7 @@ bool Config::parse(const std::string& data)
             {
                 auto member = zone_contents[i];
                 std::string value = static_cast<const char*>(member);
-                if(!value.empty())
+                if (!value.empty())
                 {
                     Log::info("Config", Format("Adding {1} to zone {2}", Str(value), Str(zone_name)));
                     zone_members.emplace_back(value);
