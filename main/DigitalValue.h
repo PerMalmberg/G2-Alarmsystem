@@ -23,5 +23,5 @@ class DigitalValue
 
     private:
         uint8_t input = 0;
-        bool value = 0;
+        bool value = false;
 };

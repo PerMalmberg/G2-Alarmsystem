@@ -27,7 +27,7 @@ set(SOURCE_FILES
         main/CommandDispatcher.cpp
         main/CommandDispatcher.h
         main/Config.cpp
-        main/Config.h)
+        main/Config.h main/IReferenceValueGetter.h main/AnalogRef.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)

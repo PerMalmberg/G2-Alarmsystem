@@ -28,6 +28,7 @@ bool Config::write(const std::string& file)
     {
         auto curr = dig_input[name];
         curr["name"] = io_names[name];
+        curr["enabled"].set(io_enabled[name]);
         curr["idle"]["value"].set(digital_idle[name]);
     }
 
@@ -44,6 +45,7 @@ bool Config::write(const std::string& file)
     {
         auto curr = analog_input[name];
         curr["name"] = io_names[name];
+        curr["enabled"].set(io_enabled[name]);
         auto idle = curr["idle"];
         const auto& idle_val = analog_idle[name];
         idle["value"] = idle_val.value;
@@ -51,14 +53,14 @@ bool Config::write(const std::string& file)
     }
 
     auto z = v["zones"];
-    for(auto& zone : zones)
+    for (auto& zone : zones)
     {
         const auto& name = zone.first;
         const auto& content = zone.second;
         auto curr = z[name];
 
-        int i=0;
-        for(const auto& input : content)
+        int i = 0;
+        for (const auto& input : content)
         {
             curr[i++] = input;
         }
@@ -114,12 +116,15 @@ bool Config::parse(const char* data)
             auto idle = input["idle"];
             auto value = idle["value"].get_int(0);
             auto variance = idle["variance"].get_int(0);
+            auto enabled = input["enabled"].get_bool(false);
 
+            io_enabled[ss.str()] = enabled;
             analog_idle[ss.str()] = AnalogRef{value, variance};
-            Log::info("Analog", Format("{1} ref value: {2}, variance: {3}",
+            Log::info("Analog", Format("{1} ref value: {2}, variance: {3}, enabled: {4}",
                                        Str(get_custom_name(ss.str())),
                                        Int32(value),
-                                       Int32(variance)));
+                                       Int32(variance),
+                                       Bool(enabled)));
         }
 
         Log::info("Config", Format("Reading digital input details"));
@@ -135,11 +140,13 @@ bool Config::parse(const char* data)
                                               Str(ss.str())));
 
             auto idle = input["idle"]["value"].get_bool(false);
+            auto enabled = input["enabled"].get_bool(false);
 
             digital_idle[ss.str()] = idle;
-            Log::info("Digital", Format("{1} idle value: {2}",
+            Log::info("Digital", Format("{1} idle value: {2}, enabled: {4}",
                                         Str(get_custom_name(ss.str())),
-                                        Bool(digital_idle[ss.str()])));
+                                        Bool(digital_idle[ss.str()]),
+                                        Bool(enabled)));
         }
 
         Log::info("Config", Format("Reading digital output details"));
@@ -195,12 +202,23 @@ bool Config::parse(const char* data)
     return res;
 }
 
-bool Config::get_digital_idle_state(const std::string& short_name)
-{
-    return digital_idle[short_name];
-}
-
-Config::AnalogRef& Config::get_analog_idle(const std::string& short_name)
+const AnalogRef& Config::get_analog_reference(const std::string& short_name)
 {
     return analog_idle[short_name];
 }
+
+bool Config::get_digital_idle(const std::string& short_name)
+{
+    return digital_startup[short_name];
+}
+
+bool Config::get_digital_startup_state(const std::string& short_name)
+{
+    return digital_startup[short_name];
+}
+
+bool Config::is_input_enabled(const std::string& short_name)
+{
+
+}
+

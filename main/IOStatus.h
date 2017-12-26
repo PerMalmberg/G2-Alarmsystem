@@ -4,6 +4,7 @@
 #include <string>
 #include "AnalogValue.h"
 #include "DigitalValue.h"
+#include "IReferenceValueGetter.h"
 
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/core/ipc/Publisher.h>
@@ -13,55 +14,28 @@ class IOStatus
           public smooth::core::ipc::IEventListener<DigitalValue>
 {
     public:
-        IOStatus() = default;
+        explicit IOStatus(IReferenceValueGetter& ref_getter)
+                : ref_getter(ref_getter)
+        {
+        }
 
         void event(const AnalogValue& event) override;
         void event(const DigitalValue& event) override;
 
-        void arm();
+        const std::unordered_map<std::string, bool>& get_digital_values() const
+        {
+            return digital_values;
+        };
+
+        const std::unordered_map<std::string, uint32_t>& get_analog_values() const
+        {
+            return analog_values;
+        };
 
     private:
-        std::unordered_map<int, uint32_t> analog_status{};
-        std::unordered_map<int, uint32_t> analog_status_reference{};
-        std::unordered_map<uint32_t, bool> digital_status{};
-        std::unordered_map<uint32_t, bool> digital_status_reference{};
+        IReferenceValueGetter& ref_getter;
+        std::unordered_map<std::string, bool> digital_values{};
+        std::unordered_map<std::string, uint32_t> analog_values{};
 
-        template<typename T, typename U>
-        bool compare_equal(const std::unordered_map<T, U>& previous,
-                           const std::unordered_map<T, U>& current) const
-        {
-            bool res = true;
-            for (auto& prev_pair : previous)
-            {
-                auto in_current = current.find(prev_pair.first);
-                if (in_current != current.end())
-                {
-                    res &= prev_pair.second == (*in_current).second;
-                }
-            }
 
-            return res;
-        }
-
-        template<typename T, typename U>
-        bool compare_diff(const std::unordered_map<T, U>& previous,
-                          const std::unordered_map<T, U>& current,
-                          int64_t max_diff) const
-        {
-            bool res = true;
-            for (auto& prev_pair : previous)
-            {
-                auto in_current = current.find(prev_pair.first);
-                if (in_current != current.end())
-                {
-                    int64_t prev = prev_pair.second;
-                    int64_t curr = (*in_current).second;
-
-                    int64_t diff = std::max(prev, curr) - std::min(prev, curr);
-                    res &= diff < max_diff;
-                }
-            }
-
-            return res;
-        }
 };

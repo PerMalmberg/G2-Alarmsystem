@@ -6,7 +6,8 @@
           "name": "Front door lock",
           "idle": {
             "value": true
-          }
+          },
+          "enabled" : true
         },
         "i1": {
           "name": "Side door lock",
@@ -33,14 +34,16 @@
           "idle": {
             "value": 1234,
             "variance": 200
-          }
+          },
+          "enabled" : true
         },
         "a1": {
           "name": "IR Livingroom",
           "idle": {
             "value": 4567,
             "variance": 400
-          }
+          },
+          "enabled" : false
         }
       }
     }

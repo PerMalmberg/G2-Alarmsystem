@@ -31,6 +31,7 @@ G2Alarm::G2Alarm()
           level_shifter_enable(GPIO_NUM_5, true, false, true),
           rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B()),
           control_panel(*this, *this),
+          io_status(cfg),
           analog_data("AnalogData", 25, *this, io_status),
           digital_data("DigitalData", 25, *this, io_status),
           mqtt_data("MQTTData", 10, *this, *this),
@@ -103,6 +104,19 @@ void G2Alarm::init()
         {
             mqtt.publish("g2/response/read_config/result", "0", QoS::AT_LEAST_ONCE, false);
             mqtt.publish("g2/response/read_config/result_message", ex.what(), QoS::AT_LEAST_ONCE, false);
+        }
+    });
+
+    command_dispatcher.add_command("g2/cmd/store_reference", [this](const std::string& o)
+    {
+        try
+        {
+
+
+        }
+        catch (std::exception& ex)
+        {
+
         }
     });
 
