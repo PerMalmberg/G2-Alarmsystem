@@ -47,7 +47,7 @@ bool Config::write(const std::string& file)
         curr["name"] = io_names[name];
         curr["enabled"].set(io_enabled[name]);
         auto idle = curr["idle"];
-        const auto& idle_val = analog_idle[name];
+        const auto& idle_val = analog_ref[name];
         idle["value"] = idle_val.value;
         idle["variance"] = idle_val.variance;
     }
@@ -90,38 +90,30 @@ bool Config::parse(const char* data)
 {
     bool res = false;
 
-    Log::info("Config", Format("Data prepared, parsing..."));
-
     auto root = cJSON_Parse(data);
 
     if (root)
     {
-        const int analog_input_count = 8;
-        const int digital_input_count = 8;
-        const int digital_output_count = 8;
-
         Value v(root);
 
         Log::info("Config", Format("Reading analog input details"));
 
-        for (auto i = 0; i < analog_input_count; ++i)
+        for (const auto& name : analog_input_names)
         {
-            std::stringstream ss;
-            ss << "a" << i;
-            auto input = v["io"]["analog"]["input"][ss.str()];
-            io_names[ss.str()] = input["name"].get_string(ss.str());
-            Log::info("Analog", Format("Will use name '{1}' for analog input {2}", Str(get_custom_name(ss.str())),
-                                       Str(ss.str())));
+            auto input = v["io"]["analog"]["input"][name];
+            io_names[name] = input["name"].get_string(name);
+            Log::info("Analog", Format("Will use name '{1}' for analog input {2}", Str(get_custom_name(name)),
+                                       Str(name)));
 
             auto idle = input["idle"];
             auto value = idle["value"].get_int(0);
             auto variance = idle["variance"].get_int(0);
             auto enabled = input["enabled"].get_bool(false);
 
-            io_enabled[ss.str()] = enabled;
-            analog_idle[ss.str()] = AnalogRef{value, variance};
+            io_enabled[name] = enabled;
+            analog_ref[name] = AnalogRef{value, variance};
             Log::info("Analog", Format("{1} ref value: {2}, variance: {3}, enabled: {4}",
-                                       Str(get_custom_name(ss.str())),
+                                       Str(get_custom_name(name)),
                                        Int32(value),
                                        Int32(variance),
                                        Bool(enabled)));
@@ -129,41 +121,37 @@ bool Config::parse(const char* data)
 
         Log::info("Config", Format("Reading digital input details"));
 
-        for (auto i = 0; i < digital_input_count; ++i)
+        for (const auto& name : digital_input_names)
         {
-            std::stringstream ss;
-            ss << "i" << i;
-            auto input = v["io"]["digital"]["input"][ss.str()];
-            io_names[ss.str()] = input["name"].get_string(ss.str());
+            auto input = v["io"]["digital"]["input"][name];
+            io_names[name] = input["name"].get_string(name);
             Log::info("Digital input", Format("Will use name '{1}' for digital input {2}",
-                                              Str(get_custom_name(ss.str())),
-                                              Str(ss.str())));
+                                              Str(get_custom_name(name)),
+                                              Str(name)));
 
             auto idle = input["idle"]["value"].get_bool(false);
             auto enabled = input["enabled"].get_bool(false);
 
-            digital_idle[ss.str()] = idle;
-            Log::info("Digital", Format("{1} idle value: {2}, enabled: {4}",
-                                        Str(get_custom_name(ss.str())),
-                                        Bool(digital_idle[ss.str()]),
+            digital_idle[name] = idle;
+            Log::info("Digital", Format("{1} idle value: {2}, enabled: {3}",
+                                        Str(get_custom_name(name)),
+                                        Bool(digital_idle[name]),
                                         Bool(enabled)));
         }
 
         Log::info("Config", Format("Reading digital output details"));
 
-        for (auto i = 0; i < digital_output_count; ++i)
+        for (const auto& name :digital_output_names)
         {
-            std::stringstream ss;
-            ss << "o" << i;
-            auto output = v["io"]["digital"]["output"][ss.str()];
-            io_names[ss.str()] = output["name"].get_string(ss.str());
-            digital_startup[ss.str()] = output["startup_state"].get_bool(false);
+            auto output = v["io"]["digital"]["output"][name];
+            io_names[name] = output["name"].get_string(name);
+            digital_startup[name] = output["startup_state"].get_bool(false);
             Log::info("Digital out",
-                      Format("Will use name '{1}' for digital output {2}", Str(get_custom_name(ss.str())),
-                             Str(ss.str())));
+                      Format("Will use name '{1}' for digital output {2}", Str(get_custom_name(name)),
+                             Str(name)));
             Log::info("Digital", Format("{1} startup value: {2}",
-                                        Str(get_custom_name(ss.str())),
-                                        Bool(digital_startup[ss.str()])));
+                                        Str(get_custom_name(name)),
+                                        Bool(digital_startup[name])));
 
         }
 
@@ -204,7 +192,7 @@ bool Config::parse(const char* data)
 
 const AnalogRef& Config::get_analog_reference(const std::string& short_name)
 {
-    return analog_idle[short_name];
+    return analog_ref[short_name];
 }
 
 bool Config::get_digital_idle(const std::string& short_name)
@@ -219,6 +207,13 @@ bool Config::get_digital_startup_state(const std::string& short_name)
 
 bool Config::is_input_enabled(const std::string& short_name)
 {
+    return io_enabled[short_name];
+}
 
+void Config::set_analog_ref(const std::string& short_name, uint32_t ref_value)
+{
+    Log::info("Config", Format("Setting analog reference: {1} to {2}", Str(short_name), UInt32(ref_value)));
+    auto& ref = analog_ref[short_name];
+    ref.value = ref_value;
 }
 

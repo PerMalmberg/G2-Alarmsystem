@@ -29,18 +29,18 @@
     },
     "analog": {
       "input": {
-        "a0": {
+        "a10": {
           "name": "IR Hallway",
           "idle": {
-            "value": 1234,
+            "value": 20022,
             "variance": 200
           },
-          "enabled" : true
+          "enabled" : false
         },
-        "a1": {
+        "a20": {
           "name": "IR Livingroom",
           "idle": {
-            "value": 4567,
+            "value": 22601,
             "variance": 400
           },
           "enabled" : false
@@ -50,15 +50,15 @@
   },
   "zones": {
     "night": [
-      "a0",
-      "a1"
+      "a10",
+      "a11"
     ],
     "all": [
-      "a0",
-      "a1",
-      "a2",
-      "a3",
-      "a4"
+      "a10",
+      "a11",
+      "a12",
+      "a13",
+      "a14"
     ]
   }
 }

@@ -28,7 +28,9 @@ class G2Alarm
         : public smooth::core::Application,
           public IWiegandSignal,
           public smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>,
-          public smooth::core::ipc::IEventListener<std::pair<std::string, int64_t>>
+          public smooth::core::ipc::IEventListener<std::pair<std::string, int64_t>>,
+          public smooth::core::ipc::IEventListener<AnalogValue>,
+          public smooth::core::ipc::IEventListener<DigitalValue>
 {
     public:
         G2Alarm();
@@ -37,6 +39,9 @@ class G2Alarm
 
         void event(const smooth::application::network::mqtt::MQTTData& event) override;
         void event(const std::pair<std::string, int64_t>& event) override;
+
+        void event(const AnalogValue& event) override;
+        void event(const DigitalValue& event) override;
 
         void number(uint8_t number) override;
         void id(uint32_t id, uint8_t byte_count) override;
@@ -57,5 +62,10 @@ class G2Alarm
         CommandDispatcher command_dispatcher{};
 
         void read_configuration();
+
+        std::string get_name() const
+        {
+            return "g2";
+        }
 };
 
