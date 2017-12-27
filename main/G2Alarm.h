@@ -60,6 +60,7 @@ class G2Alarm
         std::unique_ptr<I2CTask> i2c{};
         smooth::core::ipc::SubscribingTaskEventQueue<std::pair<std::string, int64_t>> general_message;
         CommandDispatcher command_dispatcher{};
+        smooth::core::timer::ElapsedTime uptime{};
 
         void read_configuration();
 

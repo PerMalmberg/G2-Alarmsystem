@@ -34,12 +34,14 @@ G2Alarm::G2Alarm()
 
 void G2Alarm::init()
 {
+    uptime.start();
+
     smooth::core::Application::init();
 
     read_configuration();
 
     mqtt.subscribe(get_name() + "/cmd/#", QoS::EXACTLY_ONCE);
-    command_dispatcher.add_command(get_name() +"/cmd/write_config", [this](const std::string& o)
+    command_dispatcher.add_command(get_name() + "/cmd/write_config", [this](const std::string& o)
     {
         try
         {
@@ -47,19 +49,21 @@ void G2Alarm::init()
             Config tmp;
             if (tmp.parse(o.data()))
             {
+                // Store new config
                 if (tmp.write(CONFIG_FILE))
                 {
-                    if(cfg.read(CONFIG_FILE))
+                    // Now read the new config.
+                    if (cfg.read(CONFIG_FILE))
                     {
                         mqtt.publish(get_name() + "/response/write_config/result", "1", QoS::AT_LEAST_ONCE, false);
                     }
                     else
                     {
-                        mqtt.publish(get_name() +"/response/write_config/result",
+                        mqtt.publish(get_name() + "/response/write_config/result",
                                      "0",
                                      QoS::AT_LEAST_ONCE,
                                      false);
-                        mqtt.publish(get_name() +"/response/write_config/result_message",
+                        mqtt.publish(get_name() + "/response/write_config/result_message",
                                      "Could not read config",
                                      QoS::AT_LEAST_ONCE,
                                      false);
@@ -67,8 +71,8 @@ void G2Alarm::init()
                 }
                 else
                 {
-                    mqtt.publish(get_name() +"/response/write_config/result", "0", QoS::AT_LEAST_ONCE, false);
-                    mqtt.publish(get_name() +"/response/write_config/result_message",
+                    mqtt.publish(get_name() + "/response/write_config/result", "0", QoS::AT_LEAST_ONCE, false);
+                    mqtt.publish(get_name() + "/response/write_config/result_message",
                                  "Could not write config",
                                  QoS::AT_LEAST_ONCE,
                                  false);
@@ -76,11 +80,11 @@ void G2Alarm::init()
             }
             else
             {
-                mqtt.publish(get_name() +"/response/write_config/result",
+                mqtt.publish(get_name() + "/response/write_config/result",
                              "0",
                              QoS::AT_LEAST_ONCE,
                              false);
-                mqtt.publish(get_name() +"/response/write_config/result_message",
+                mqtt.publish(get_name() + "/response/write_config/result_message",
                              "Could not parse config",
                              QoS::AT_LEAST_ONCE,
                              false);
@@ -88,12 +92,12 @@ void G2Alarm::init()
         }
         catch (std::exception& ex)
         {
-            mqtt.publish(get_name() +"/response/write_config/result", "0", QoS::AT_LEAST_ONCE, false);
-            mqtt.publish(get_name() +"/response/write_config/result_message", ex.what(), QoS::AT_LEAST_ONCE, false);
+            mqtt.publish(get_name() + "/response/write_config/result", "0", QoS::AT_LEAST_ONCE, false);
+            mqtt.publish(get_name() + "/response/write_config/result_message", ex.what(), QoS::AT_LEAST_ONCE, false);
         }
     });
 
-    command_dispatcher.add_command(get_name() +"/cmd/read_config", [this](const std::string& o)
+    command_dispatcher.add_command(get_name() + "/cmd/read_config", [this](const std::string& o)
     {
         try
         {
@@ -102,41 +106,41 @@ void G2Alarm::init()
 
             if (f.read(data))
             {
-                mqtt.publish(get_name() +"/response/read_config/data",
+                mqtt.publish(get_name() + "/response/read_config/data",
                              data.data(),
                              static_cast<int>(data.size()),
                              QoS::AT_LEAST_ONCE, false);
 
-                mqtt.publish(get_name() +"/response/read_config/result", "1", QoS::AT_LEAST_ONCE, false);
+                mqtt.publish(get_name() + "/response/read_config/result", "1", QoS::AT_LEAST_ONCE, false);
             }
             else
             {
-                mqtt.publish(get_name() +"/response/read_config/result", "0", QoS::AT_LEAST_ONCE, false);
+                mqtt.publish(get_name() + "/response/read_config/result", "0", QoS::AT_LEAST_ONCE, false);
             }
 
         }
         catch (std::exception& ex)
         {
-            mqtt.publish(get_name() +"/response/read_config/result", "0", QoS::AT_LEAST_ONCE, false);
-            mqtt.publish(get_name() +"/response/read_config/result_message", ex.what(), QoS::AT_LEAST_ONCE, false);
+            mqtt.publish(get_name() + "/response/read_config/result", "0", QoS::AT_LEAST_ONCE, false);
+            mqtt.publish(get_name() + "/response/read_config/result_message", ex.what(), QoS::AT_LEAST_ONCE, false);
         }
     });
 
-    command_dispatcher.add_command(get_name() +"/cmd/store_current_config", [this](const std::string& o)
+    command_dispatcher.add_command(get_name() + "/cmd/store_current_config", [this](const std::string& o)
     {
-        mqtt.publish(get_name() +"/response/store_current_config/result",
+        mqtt.publish(get_name() + "/response/store_current_config/result",
                      cfg.write(CONFIG_FILE) ? "1" : "0",
                      QoS::AT_LEAST_ONCE,
                      false);
     });
 
-    command_dispatcher.add_command(get_name() +"/cmd/set_references", [this](const std::string& o)
+    command_dispatcher.add_command(get_name() + "/cmd/set_references", [this](const std::string& o)
     {
         for (const auto& pair : io_status.get_analog_values())
         {
             cfg.set_analog_ref(pair.first, pair.second);
         }
-        mqtt.publish(get_name() +"/response/set_references/result", "1", QoS::AT_LEAST_ONCE, false);
+        mqtt.publish(get_name() + "/response/set_references/result", "1", QoS::AT_LEAST_ONCE, false);
     });
 
 
@@ -155,6 +159,21 @@ void G2Alarm::tick()
     rgb.set_pixel(0, 0, static_cast<uint8_t>(toggle ? 0 : 5), 0);
     rgb.apply();
     toggle = !toggle;
+
+    auto up = uptime.get_running_time();
+    std::chrono::hours h = std::chrono::duration_cast<hours>(up);
+    std::chrono::minutes m = std::chrono::duration_cast<minutes>(up);
+    std::chrono::seconds s = std::chrono::duration_cast<seconds>(up);
+
+    std::string msg = Format("{1}:{2}:{3}",
+                             Int64(h.count()),
+                             Int64(m.count()),
+                             Int64(s.count())).get();
+
+    mqtt.publish(get_name() + "/status/uptime",
+                 msg,
+                 QoS::AT_MOST_ONCE,
+                 false);
 }
 
 
@@ -194,7 +213,7 @@ void G2Alarm::read_configuration()
 
 void G2Alarm::event(const AnalogValue& event)
 {
-    if(io_status.event(event))
+    if (io_status.event(event))
     {
         std::stringstream topic;
         topic << get_name() << "/io_status/analog/a" << event.get_input();
@@ -206,7 +225,7 @@ void G2Alarm::event(const AnalogValue& event)
 
 void G2Alarm::event(const DigitalValue& event)
 {
-    if(io_status.event(event))
+    if (io_status.event(event))
     {
         std::stringstream topic;
         topic << get_name() << "/io_status/digital/i" << static_cast<int>(event.get_input());

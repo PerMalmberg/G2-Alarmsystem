@@ -94,7 +94,7 @@ bool Config::parse(const char* data)
 
     if (root)
     {
-        Value v(root);
+        Value v(root, true);
 
         Log::info("Config", Format("Reading analog input details"));
 
@@ -179,8 +179,6 @@ bool Config::parse(const char* data)
                 }
             }
         }
-
-        cJSON_Delete(root);
 
         res = true;
     }
