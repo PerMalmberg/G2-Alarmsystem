@@ -133,6 +133,8 @@ bool Config::parse(const char* data)
             auto enabled = input["enabled"].get_bool(false);
 
             digital_idle[name] = idle;
+            io_enabled[name] = enabled;
+
             Log::info("Digital", Format("{1} idle value: {2}, enabled: {3}",
                                         Str(get_custom_name(name)),
                                         Bool(digital_idle[name]),
@@ -141,7 +143,7 @@ bool Config::parse(const char* data)
 
         Log::info("Config", Format("Reading digital output details"));
 
-        for (const auto& name :digital_output_names)
+        for (const auto& name : digital_output_names)
         {
             auto output = v["io"]["digital"]["output"][name];
             io_names[name] = output["name"].get_string(name);
@@ -197,7 +199,7 @@ const AnalogRef& Config::get_analog_reference(const std::string& short_name)
 
 bool Config::get_digital_idle(const std::string& short_name)
 {
-    return digital_startup[short_name];
+    return digital_idle[short_name];
 }
 
 bool Config::get_digital_startup_state(const std::string& short_name)
