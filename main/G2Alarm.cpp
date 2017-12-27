@@ -3,14 +3,6 @@
 //
 
 #include "G2Alarm.h"
-#include <smooth/core/io/i2c/Master.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/core/util/ByteSet.h>
-#include <driver/i2c.h>
-#include <chrono>
-#include <thread>
-#include <smooth/core/util/make_unique.h>
-#include "wifi-creds.h"
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/filesystem/File.h>
 
