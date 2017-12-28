@@ -14,6 +14,7 @@
 #include <smooth/application/network/mqtt/MqttClient.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/core/filesystem/Filesystem.h>
+#include <states/AlarmBaseState.h>
 #include "AnalogCycler.h"
 #include "Wiegand.h"
 #include "I2CTask.h"
@@ -22,7 +23,7 @@
 #include "IOStatus.h"
 #include "CommandDispatcher.h"
 #include "Config.h"
-
+#include "states/AlarmFSM.h"
 
 class G2Alarm
         : public smooth::core::Application,
@@ -61,6 +62,8 @@ class G2Alarm
         smooth::core::ipc::SubscribingTaskEventQueue<std::pair<std::string, int64_t>> general_message;
         CommandDispatcher command_dispatcher{};
         smooth::core::timer::ElapsedTime uptime{};
+        AlarmFSM<AlarmBaseState> fsm;
+
 
         void read_configuration();
 

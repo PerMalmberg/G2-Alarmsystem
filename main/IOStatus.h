@@ -30,10 +30,15 @@ class IOStatus
             return analog_values;
         }
 
+        bool are_all_inputs_within_limits();
+
     private:
         IReferenceValueGetter& ref_getter;
         std::unordered_map<std::string, bool> digital_values{};
         std::unordered_map<std::string, uint32_t> analog_values{};
+
+        bool is_analog_inside_limit(const std::string& name, uint32_t value);
+        bool is_digital_idle(const std::string& name, bool value);
 
 
 };

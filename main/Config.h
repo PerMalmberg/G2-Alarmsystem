@@ -27,6 +27,15 @@ class Config : public IReferenceValueGetter
             return zones;
         }
 
+        const std::vector<std::string> get_digital_input_names() override
+        {
+            return digital_input_names;
+        }
+        const std::vector<std::string> get_analog_input_names() override
+        {
+            return analog_input_names;
+        }
+
         void set_analog_ref(const std::string& short_name, uint32_t ref_value);
     private:
         std::unordered_map<std::string, std::string> io_names{};

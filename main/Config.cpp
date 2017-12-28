@@ -217,3 +217,4 @@ void Config::set_analog_ref(const std::string& short_name, uint32_t ref_value)
     ref.value = ref_value;
 }
 
+

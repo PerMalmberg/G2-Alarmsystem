@@ -5,6 +5,7 @@
 #include "G2Alarm.h"
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/filesystem/File.h>
+#include <states/Idle.h>
 
 using namespace std::chrono;
 using namespace smooth::core;
@@ -28,16 +29,18 @@ G2Alarm::G2Alarm()
           digital_data("DigitalData", 25, *this, *this),
           mqtt_data("MQTTData", 10, *this, *this),
           mqtt("Alarm", seconds(10), 4096, 5, mqtt_data),
-          general_message("General message", 10, *this, *this)
+          general_message("General message", 10, *this, *this),
+          fsm(io_status)
 {
 }
 
 void G2Alarm::init()
 {
-    uptime.start();
-
     smooth::core::Application::init();
 
+    fsm.set_state(new(fsm) Idle(fsm));
+
+    uptime.start();
     read_configuration();
 
     mqtt.subscribe(get_name() + "/cmd/#", QoS::EXACTLY_ONCE);
@@ -143,6 +146,16 @@ void G2Alarm::init()
         mqtt.publish(get_name() + "/response/set_references/result", "1", QoS::AT_LEAST_ONCE, false);
     });
 
+    command_dispatcher.add_command(get_name() + "/cmd/arm", [this](const std::string& o)
+    {
+        fsm.arm();
+    });
+
+
+    command_dispatcher.add_command(get_name() + "/cmd/disarm", [this](const std::string& o)
+    {
+        fsm.disarm();
+    });
 
     level_shifter_enable.set();
 

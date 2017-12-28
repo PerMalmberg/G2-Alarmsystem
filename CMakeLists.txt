@@ -27,7 +27,23 @@ set(SOURCE_FILES
         main/CommandDispatcher.cpp
         main/CommandDispatcher.h
         main/Config.cpp
-        main/Config.h main/IReferenceValueGetter.h main/AnalogRef.h)
+        main/Config.h
+        main/IReferenceValueGetter.h
+        main/AnalogRef.h
+        main/states/AlarmBaseState.cpp
+        main/states/AlarmBaseState.h
+        main/states/AlarmFSM.cpp
+        main/states/AlarmFSM.h
+        main/states/Idle.cpp
+        main/states/Idle.h
+        main/states/PreArmCheck.cpp
+        main/states/PreArmCheck.h
+        main/states/Armed.cpp
+        main/states/Armed.h
+        main/states/Tripped.cpp
+        main/states/Tripped.h
+        main/states/AutoRearm.cpp
+        main/states/AutoRearm.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)
