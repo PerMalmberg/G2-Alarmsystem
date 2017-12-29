@@ -210,9 +210,7 @@ void G2Alarm::event(const smooth::application::network::mqtt::MQTTData& event)
 
 void G2Alarm::event(const std::pair<std::string, int64_t>& event)
 {
-    std::stringstream ss;
-    ss << event.second;
-    mqtt.publish(event.first, ss.str(), QoS::AT_MOST_ONCE, false);
+    mqtt.publish(event.first, std::to_string(event.second), QoS::AT_MOST_ONCE, false);
 }
 
 void G2Alarm::read_configuration()
@@ -228,11 +226,11 @@ void G2Alarm::event(const AnalogValue& event)
 {
     if (io_status.event(event))
     {
-        std::stringstream topic;
-        topic << get_name() << "/io_status/analog/a" << event.get_input();
-        std::stringstream value;
-        value << event.get_value();
-        mqtt.publish(topic.str(), value.str(), QoS::AT_MOST_ONCE, false);
+        std::string topic = get_name();
+        topic += "/io_status/analog/";
+        topic += event.get_name();
+
+        mqtt.publish(topic, std::to_string(event.get_value()), QoS::AT_MOST_ONCE, false);
     }
 }
 
@@ -240,10 +238,10 @@ void G2Alarm::event(const DigitalValue& event)
 {
     if (io_status.event(event))
     {
-        std::stringstream topic;
-        topic << get_name() << "/io_status/digital/i" << static_cast<int>(event.get_input());
-        std::stringstream value;
-        value << event.get_value();
-        mqtt.publish(topic.str(), value.str(), QoS::AT_MOST_ONCE, false);
+        std::string topic = get_name();
+        topic += "/io_status/digital/i";
+        topic += event.get_name();
+
+        mqtt.publish(topic, std::to_string(event.get_value()), QoS::AT_MOST_ONCE, false);
     }
 }

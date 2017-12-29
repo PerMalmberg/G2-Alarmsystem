@@ -43,7 +43,7 @@ set(SOURCE_FILES
         main/states/Tripped.cpp
         main/states/Tripped.h
         main/states/AutoRearm.cpp
-        main/states/AutoRearm.h)
+        main/states/AutoRearm.h main/states/events/AnalogValueOutsideLimits.h main/states/events/DigitalValueNotIdle.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)

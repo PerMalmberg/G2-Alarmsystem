@@ -11,5 +11,7 @@ class Tripped
         {
 
         }
+
+        void enter_state() override;
 };
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class DigitalValue
 {
     public:
@@ -7,7 +9,8 @@ class DigitalValue
 
         DigitalValue(uint8_t input, bool value)
                 : input(input),
-                  value(value)
+                  value(value),
+                  name("i" + std::to_string(input))
         {
         }
 
@@ -21,7 +24,13 @@ class DigitalValue
             return value;
         }
 
+        const std::string& get_name() const
+        {
+            return name;
+        }
+
     private:
         uint8_t input = 0;
         bool value = false;
+        std::string name;
 };

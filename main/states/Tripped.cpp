@@ -3,3 +3,8 @@
 //
 
 #include "Tripped.h"
+
+void Tripped::enter_state()
+{
+
+}

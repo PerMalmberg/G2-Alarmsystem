@@ -1,15 +1,16 @@
 #include "IOStatus.h"
+#include <smooth/core/ipc/Publisher.h>
+#include "states/events/AnalogValueOutsideLimits.h"
+#include "states/events/DigitalValueNotIdle.h"
 
 using namespace smooth::core::logging;
+using namespace smooth::core::ipc;
 
 bool IOStatus::event(const AnalogValue& event)
 {
-    std::stringstream ss;
-    ss << "a" << event.get_input();
-    std::string name = ss.str();
-
+    const auto& name = event.get_name();
     auto old = analog_values[name];
-    analog_values[ss.str()] = event.get_value();
+    analog_values[name] = event.get_value();
 
     bool changed = false;
 
@@ -18,7 +19,8 @@ bool IOStatus::event(const AnalogValue& event)
         changed = old != analog_values[name];
         if (!is_analog_inside_limit(name, event.get_value()))
         {
-
+            AnalogValueOutsideLimits a(event.get_input(), event.get_value());
+            Publisher<AnalogValueOutsideLimits>::publish(a);
         }
     }
 
@@ -27,9 +29,7 @@ bool IOStatus::event(const AnalogValue& event)
 
 bool IOStatus::event(const DigitalValue& event)
 {
-    std::stringstream ss;
-    ss << "i" << static_cast<int>(event.get_input());
-    std::string name = ss.str();
+    const auto& name = event.get_name();
 
     auto old = digital_values[name];
     digital_values[name] = event.get_value();
@@ -40,7 +40,8 @@ bool IOStatus::event(const DigitalValue& event)
         changed = old != digital_values[name];
         if (!is_digital_idle(name, event.get_value()) )
         {
-
+            DigitalValueNotIdle d(event.get_input(), event.get_value());
+            Publisher<DigitalValueNotIdle>::publish(d);
         }
     }
 
@@ -104,5 +105,3 @@ bool IOStatus::is_digital_idle(const std::string& name, bool value)
 
     return is_idle;
 }
-
-

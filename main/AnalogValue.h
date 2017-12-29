@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <string>
 
 class AnalogValue
 {
@@ -9,7 +9,8 @@ class AnalogValue
 
         AnalogValue(int input, uint32_t value)
                 : input(input),
-                  value(value)
+                  value(value),
+                  name("a" + std::to_string(input))
         {
         }
 
@@ -23,7 +24,13 @@ class AnalogValue
             return value;
         }
 
+        const std::string& get_name() const
+        {
+            return name;
+        }
+
     private:
         int input = 0;
         uint32_t value = 0;
+        std::string name;
 };
