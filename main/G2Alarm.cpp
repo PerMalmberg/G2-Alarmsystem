@@ -164,7 +164,7 @@ void G2Alarm::init()
 
 
     i2c = make_unique<I2CTask>();
-    //i2c->start();
+    i2c->start();
 
 
     command_dispatcher.add_command(get_name() + "/cmd/rgb", [this](const std::string& o)
