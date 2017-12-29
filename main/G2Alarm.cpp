@@ -6,6 +6,7 @@
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/filesystem/File.h>
 #include <states/Idle.h>
+#include <smooth/core/json/Value.h>
 
 using namespace std::chrono;
 using namespace smooth::core;
@@ -22,7 +23,6 @@ const char* CONFIG_FILE = "/config/config.jsn";
 G2Alarm::G2Alarm()
         : Application(APPLICATION_BASE_PRIO, milliseconds(1000)),
           level_shifter_enable(GPIO_NUM_5, true, false, true),
-          rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B()),
           control_panel(*this, *this),
           io_status(cfg),
           analog_data("AnalogData", 25, *this, *this),
@@ -30,7 +30,7 @@ G2Alarm::G2Alarm()
           mqtt_data("MQTTData", 10, *this, *this),
           mqtt("Alarm", seconds(10), 4096, 5, mqtt_data),
           general_message("General message", 10, *this, *this),
-          fsm(io_status)
+          fsm(io_status, *this)
 {
 }
 
@@ -41,6 +41,7 @@ void G2Alarm::init()
     fsm.set_state(new(fsm) Idle(fsm));
 
     uptime.start();
+    mqtt_send_period.start();
     read_configuration();
 
     mqtt.subscribe(get_name() + "/cmd/#", QoS::EXACTLY_ONCE);
@@ -163,30 +164,42 @@ void G2Alarm::init()
 
 
     i2c = make_unique<I2CTask>();
-    i2c->start();
+    //i2c->start();
+
+
+    command_dispatcher.add_command(get_name() + "/cmd/rgb", [this](const std::string& o)
+    {
+        json::Value v(o);
+
+        uint8_t i = static_cast<uint8_t>(v["i"].get_int(0));
+        uint8_t r = static_cast<uint8_t>(v["r"].get_int(0));
+        uint8_t g = static_cast<uint8_t>(v["g"].get_int(0));
+        uint8_t b = static_cast<uint8_t>(v["b"].get_int(0));
+
+        Log::warning("LED", Format("{1} {2} {3} {4}", UInt32(i), UInt32(r), UInt32(g), UInt32(b)));
+
+        fsm.set_pixel(i,r,g,b);
+        fsm.apply_rgb();
+    });
 }
 
 void G2Alarm::tick()
 {
-    static bool toggle = false;
-    rgb.set_pixel(0, 0, static_cast<uint8_t>(toggle ? 0 : 5), 0);
-    rgb.apply();
-    toggle = !toggle;
-
     auto up = uptime.get_running_time();
-    std::chrono::hours h = std::chrono::duration_cast<hours>(up);
-    std::chrono::minutes m = std::chrono::duration_cast<minutes>(up);
     std::chrono::seconds s = std::chrono::duration_cast<seconds>(up);
 
-    std::string msg = Format("{1}:{2}:{3}",
-                             Int64(h.count()),
-                             Int64(m.count()),
-                             Int64(s.count())).get();
+    std::string msg = Format("{1}", Int64(s.count())).get();
 
-    mqtt.publish(get_name() + "/status/uptime",
-                 msg,
-                 QoS::AT_MOST_ONCE,
-                 false);
+    if (mqtt_send_period.get_running_time() > seconds(1))
+    {
+        mqtt.publish(get_name() + "/status/uptime",
+                     msg,
+                     QoS::AT_MOST_ONCE,
+                     false);
+        mqtt_send_period.reset();
+    }
+
+    fsm.tick();
 }
 
 

@@ -20,6 +20,18 @@ class AlarmBaseState
         {
         }
 
+        virtual void tick()
+        {
+        }
+
+        virtual void event(const AnalogValueOutsideLimits& event)
+        {
+        }
+
+        virtual void event(const DigitalValueNotIdle& event)
+        {
+        }
+
     protected:
         AlarmFSM<AlarmBaseState>& fsm;
 };

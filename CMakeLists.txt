@@ -32,7 +32,6 @@ set(SOURCE_FILES
         main/AnalogRef.h
         main/states/AlarmBaseState.cpp
         main/states/AlarmBaseState.h
-        main/states/AlarmFSM.cpp
         main/states/AlarmFSM.h
         main/states/Idle.cpp
         main/states/Idle.h
@@ -43,7 +42,9 @@ set(SOURCE_FILES
         main/states/Tripped.cpp
         main/states/Tripped.h
         main/states/AutoRearm.cpp
-        main/states/AutoRearm.h main/states/events/AnalogValueOutsideLimits.h main/states/events/DigitalValueNotIdle.h)
+        main/states/AutoRearm.h
+        main/states/events/AnalogValueOutsideLimits.h
+        main/states/events/DigitalValueNotIdle.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)

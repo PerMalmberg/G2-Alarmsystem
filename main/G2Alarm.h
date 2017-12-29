@@ -10,7 +10,6 @@
 #include <smooth/core/io/InterruptInput.h>
 #include <smooth/application/io/MCP23017.h>
 #include <smooth/application/io/ADS1115.h>
-#include <smooth/application/rgb_led/RGBLed.h>
 #include <smooth/application/network/mqtt/MqttClient.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/core/filesystem/Filesystem.h>
@@ -50,7 +49,6 @@ class G2Alarm
     private:
         smooth::core::io::Output level_shifter_enable;
 
-        smooth::application::rgb_led::RGBLed rgb;
         Wiegand control_panel;
         Config cfg{};
         IOStatus io_status;
@@ -62,6 +60,7 @@ class G2Alarm
         smooth::core::ipc::SubscribingTaskEventQueue<std::pair<std::string, int64_t>> general_message;
         CommandDispatcher command_dispatcher{};
         smooth::core::timer::ElapsedTime uptime{};
+        smooth::core::timer::ElapsedTime mqtt_send_period{};
         AlarmFSM<AlarmBaseState> fsm;
 
 

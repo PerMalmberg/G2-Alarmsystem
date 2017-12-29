@@ -64,7 +64,7 @@ bool IOStatus::are_all_inputs_within_limits()
     {
         if(ref_getter.is_input_enabled(name))
         {
-            all_inside &= !is_digital_idle(name, digital_values[name]);
+            all_inside &= is_digital_idle(name, digital_values[name]);
         }
     }
 
