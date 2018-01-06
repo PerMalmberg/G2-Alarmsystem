@@ -66,6 +66,13 @@ bool Config::write(const std::string& file)
         }
     }
 
+    auto codes = v["codes"];
+    int code_count = 0;
+    for(auto& code : this->codes)
+    {
+        codes[code_count++] = code;
+    }
+
     File f(file);
     return f.write(v.to_string());
 }
@@ -177,6 +184,18 @@ bool Config::parse(const char* data)
                     Log::info("Config", Format("Adding {1} to zone {2}", Str(value), Str(zone_name)));
                     zone_members.emplace_back(value);
                 }
+            }
+        }
+
+        Log::info("Config", Format("Reading codes"));
+        auto codes = v["codes"];
+        for(int i = 0; i < codes.get_array_size(); ++i)
+        {
+            std::string c = codes[i].get_string("");
+            if(!c.empty())
+            {
+                Log::info("Config", Format("Code: {1}", Str(c)));
+                this->codes.push_back(c);
             }
         }
 

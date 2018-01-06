@@ -7,18 +7,19 @@ class Armed
         : public AlarmBaseState
 {
     public:
-        explicit Armed(AlarmFSM<AlarmBaseState>& fsm) : AlarmBaseState(fsm)
+        explicit Armed(AlarmFSM<AlarmBaseState>& fsm) : AlarmBaseState(fsm, "Armed")
         {
-
         }
 
         void enter_state() override;
         void leave_state() override;
 
         void disarm() override;
+        void tick() override;
 
-        virtual void event(const AnalogValueOutsideLimits& event);
-
-        virtual void event(const DigitalValueNotIdle& event);
+        void event(const AnalogValueOutsideLimits& event) override;
+        void event(const DigitalValueNotIdle& event) override;
+    private:
+        uint16_t led = 0;
 };
 

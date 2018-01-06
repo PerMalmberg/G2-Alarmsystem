@@ -5,6 +5,7 @@
 #include "IOStatus.h"
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/application/rgb_led/RGBLed.h>
+#include <smooth/core/io/Output.h>
 #include "states/events/DigitalValueNotIdle.h"
 #include "states/events/AnalogValueOutsideLimits.h"
 
@@ -40,12 +41,14 @@ class AlarmFSM
             rgb.clear();
         }
 
+        const std::string get_state_name();
     private:
         IOStatus& io_status;
         smooth::core::Task& task;
         smooth::core::ipc::SubscribingTaskEventQueue<AnalogValueOutsideLimits> analog_events;
         smooth::core::ipc::SubscribingTaskEventQueue<DigitalValueNotIdle> digital_events;
         smooth::application::rgb_led::RGBLed rgb;
+        smooth::core::io::Output bell;
 
 };
 
@@ -61,7 +64,8 @@ AlarmFSM<BaseState>::AlarmFSM(IOStatus& io_status, smooth::core::Task& task)
           task(task),
           analog_events("FSMAnalog", 10, task, *this),
           digital_events("FSMDigital", 10, task, *this),
-          rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B())
+          rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B()),
+          bell(GPIO_NUM_32, true, false, true, true)
 {
 }
 
@@ -93,5 +97,11 @@ template<typename BaseState>
 void AlarmFSM<BaseState>::event(const DigitalValueNotIdle& event)
 {
     this->get_state()->event(event);
+}
+
+template<typename BaseState>
+const std::string AlarmFSM<BaseState>::get_state_name()
+{
+    return this->get_state()->get_name();
 }
 

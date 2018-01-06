@@ -5,12 +5,17 @@
 class AlarmBaseState
 {
     public:
-        explicit AlarmBaseState(AlarmFSM<AlarmBaseState>& fsm) : fsm(fsm)
+        explicit AlarmBaseState(AlarmFSM<AlarmBaseState>& fsm, std::string name) : fsm(fsm), name(name)
         {
         }
 
-        virtual void enter_state() {}
-        virtual void leave_state() {}
+        virtual void enter_state()
+        {
+        }
+
+        virtual void leave_state()
+        {
+        }
 
         virtual void arm()
         {
@@ -24,6 +29,11 @@ class AlarmBaseState
         {
         }
 
+        std::string get_name() const
+        {
+            return name;
+        }
+
         virtual void event(const AnalogValueOutsideLimits& event)
         {
         }
@@ -34,4 +44,5 @@ class AlarmBaseState
 
     protected:
         AlarmFSM<AlarmBaseState>& fsm;
+        std::string name;
 };

@@ -21,7 +21,7 @@ using namespace smooth::application::network::mqtt;
 const char* CONFIG_FILE = "/config/config.jsn";
 
 G2Alarm::G2Alarm()
-        : Application(APPLICATION_BASE_PRIO, milliseconds(1000)),
+        : Application(APPLICATION_BASE_PRIO, milliseconds(100)),
           level_shifter_enable(GPIO_NUM_5, true, false, true),
           control_panel(*this, *this),
           io_status(cfg),
@@ -178,7 +178,7 @@ void G2Alarm::init()
 
         Log::warning("LED", Format("{1} {2} {3} {4}", UInt32(i), UInt32(r), UInt32(g), UInt32(b)));
 
-        fsm.set_pixel(i,r,g,b);
+        fsm.set_pixel(i, r, g, b);
         fsm.apply_rgb();
     });
 }
@@ -197,20 +197,25 @@ void G2Alarm::tick()
                      QoS::AT_MOST_ONCE,
                      false);
         mqtt_send_period.reset();
+
+        mqtt.publish(get_name() + "/status/state",
+                     fsm.get_state_name(),
+                     QoS::AT_MOST_ONCE,
+                     false);
     }
 
     fsm.tick();
 }
 
 
-void G2Alarm::number(uint8_t number)
+void G2Alarm::wiegand_number(uint8_t number)
 {
     UInt32 s(number);
     mqtt.publish("Wiegand/8", s.str(), QoS::AT_MOST_ONCE, false);
 
 }
 
-void G2Alarm::id(uint32_t id, uint8_t byte_count)
+void G2Alarm::wiegand_id(uint32_t id, uint8_t byte_count)
 {
     UInt32 s(id);
     mqtt.publish("Wiegand/24", s.str(), QoS::AT_MOST_ONCE, false);

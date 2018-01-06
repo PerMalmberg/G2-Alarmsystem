@@ -44,7 +44,7 @@ void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
     if (bit_count == 4)
     {
         // No integrity data
-        receiver.number(static_cast<uint8_t>(data.to_ullong() & 0xF));
+        receiver.wiegand_number(static_cast<uint8_t>(data.to_ullong() & 0xF));
     }
     else if (bit_count == 8)
     {
@@ -53,7 +53,7 @@ void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
         auto high = data.to_ullong() & 0xF0;
         if (low == ~high)
         {
-            receiver.number(low);
+            receiver.wiegand_number(low);
         }
     }
     else if (bit_count == 26)
@@ -69,8 +69,8 @@ void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
 
         if (valid)
         {
-            uint32_t id = (upper.to_ullong() & 0xFFF) | (lower.to_ullong() >> 1);
-            receiver.id(id, 3);
+            uint32_t id = static_cast<uint32_t>((upper.to_ullong() & 0xFFF) | (lower.to_ullong() >> 1));
+            receiver.wiegand_id(id, 3);
         }
     }
     else if (bit_count == 34)
@@ -87,7 +87,7 @@ void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
         if (valid)
         {
             uint32_t id = (upper.to_ullong() & 0xFFFF) | (lower.to_ullong() >> 1);
-            receiver.id(id, 4);
+            receiver.wiegand_id(id, 4);
         }
     }
 

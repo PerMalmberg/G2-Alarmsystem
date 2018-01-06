@@ -43,8 +43,8 @@ class G2Alarm
         void event(const AnalogValue& event) override;
         void event(const DigitalValue& event) override;
 
-        void number(uint8_t number) override;
-        void id(uint32_t id, uint8_t byte_count) override;
+        void wiegand_number(uint8_t number) override;
+        void wiegand_id(uint32_t id, uint8_t byte_count) override;
 
     private:
         smooth::core::io::Output level_shifter_enable;

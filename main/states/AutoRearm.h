@@ -5,7 +5,7 @@
 class AutoRearm : public AlarmBaseState
 {
     public:
-        explicit AutoRearm(AlarmFSM<AlarmBaseState>& fsm) : AlarmBaseState(fsm)
+        explicit AutoRearm(AlarmFSM<AlarmBaseState>& fsm) : AlarmBaseState(fsm, "AutoRearm")
         {
 
         }

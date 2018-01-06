@@ -7,6 +7,7 @@
 #include <smooth/core/ipc/Publisher.h>
 #include "AnalogValue.h"
 #include "DigitalValue.h"
+#include <smooth/core/util/ByteSet.h>
 
 using namespace std::chrono;
 using namespace smooth::core::io;
@@ -29,7 +30,8 @@ I2CTask::I2CTask()
           analog_change_queue_2(*this, *this),
           digital_input_change(input_change_queue, DIGITAL_CHANGE_PIN, false, false, GPIO_INTR_ANYEDGE),
           analog_change_1(analog_change_queue_1, ANALOG_CHANGE_PIN_1, false, false, GPIO_INTR_NEGEDGE),
-          analog_change_2(analog_change_queue_2, ANALOG_CHANGE_PIN_2, false, false, GPIO_INTR_NEGEDGE)
+          analog_change_2(analog_change_queue_2, ANALOG_CHANGE_PIN_2, false, false, GPIO_INTR_NEGEDGE),
+          set_output_cmd("set_output_cmd", 10, *this, *this)
 {
 }
 
@@ -136,4 +138,11 @@ void I2CTask::publish_digital(uint8_t pins)
         Publisher<DigitalValue>::publish(dv);
         pins >>= 1;
     }
+}
+
+void I2CTask::event(const I2CSetOutput& ev)
+{
+    smooth::core::util::ByteSet b(output_state);
+    b.set(ev.get_io(), ev.get_state());
+    digital_io->set_output(smooth::application::io::MCP23017::Port::B, b);
 }

@@ -8,5 +8,13 @@ void Idle::arm()
 
 void Idle::enter_state()
 {
-    Log::info("QQQQ", Format("Idle"));
+    fsm.clear_rgb();
+    fsm.apply_rgb();
+}
+
+void Idle::tick()
+{
+    fsm.clear_rgb();
+    fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 0, 33, 0);
+    fsm.apply_rgb();
 }

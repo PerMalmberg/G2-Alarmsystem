@@ -1,64 +1,160 @@
 {
-  "io": {
-    "digital": {
-      "input": {
-        "i0": {
-          "name": "Front door lock",
-          "idle": {
-            "value": true
-          },
-          "enabled" : true
+  "io":	{
+    "digital":	{
+      "input":	{
+        "i0":	{
+          "name":	"Front door lock",
+          "enabled":	false,
+          "idle":	{
+            "value":	true
+          }
         },
-        "i1": {
-          "name": "Side door lock",
-          "idle": {
-            "value": false
+        "i1":	{
+          "name":	"Side door lock",
+          "enabled":	false,
+          "idle":	{
+            "value":	true
+          }
+        },
+        "i2":	{
+          "name":	"i2",
+          "enabled":	false,
+          "idle":	{
+            "value":	false
+          }
+        },
+        "i3":	{
+          "name":	"i3",
+          "enabled":	false,
+          "idle":	{
+            "value":	false
+          }
+        },
+        "i4":	{
+          "name":	"i4",
+          "enabled":	false,
+          "idle":	{
+            "value":	false
+          }
+        },
+        "i6":	{
+          "name":	"i6",
+          "enabled":	false,
+          "idle":	{
+            "value":	false
+          }
+        },
+        "i7":	{
+          "name":	"i7",
+          "enabled":	false,
+          "idle":	{
+            "value":	false
           }
         }
       },
-      "output": {
-        "o1": {
-          "name": "Siren",
-          "startup_state": false
+      "output":	{
+        "o0":	{
+          "name":	"o0",
+          "startup_state":	true
         },
-        "o2": {
-          "name": "Flash",
-          "startup_state": true
+        "o1":	{
+          "name":	"o1",
+          "startup_state":	false
+        },
+        "o2":	{
+          "name":	"o2",
+          "startup_state":	false
+        },
+        "o3":	{
+          "name":	"o3",
+          "startup_state":	false
+        },
+        "o4":	{
+          "name":	"o4",
+          "startup_state":	false
+        },
+        "o6":	{
+          "name":	"o6",
+          "startup_state":	false
+        },
+        "o7":	{
+          "name":	"o7",
+          "startup_state":	false
         }
       }
     },
-    "analog": {
-      "input": {
-        "a10": {
-          "name": "IR Hallway",
-          "idle": {
-            "value": 20022,
-            "variance": 200
-          },
-          "enabled" : false
+    "analog":	{
+      "input":	{
+        "a10":	{
+          "name":	"IR Livingroom",
+          "enabled":	true,
+          "idle":	{
+            "value":	13240,
+            "variance":	400
+          }
         },
-        "a20": {
-          "name": "IR Livingroom",
-          "idle": {
-            "value": 22601,
-            "variance": 400
-          },
-          "enabled" : false
+        "a11":	{
+          "name":	"a11",
+          "enabled":	false,
+          "idle":	{
+            "value":	22444,
+            "variance":	0
+          }
+        },
+        "a12":	{
+          "name":	"a12",
+          "enabled":	false,
+          "idle":	{
+            "value":	22606,
+            "variance":	0
+          }
+        },
+        "a13":	{
+          "name":	"a13",
+          "enabled":	false,
+          "idle":	{
+            "value":	19053,
+            "variance":	0
+          }
+        },
+        "a20":	{
+          "name":	"a20",
+          "enabled":	false,
+          "idle":	{
+            "value":	22601,
+            "variance":	0
+          }
+        },
+        "a21":	{
+          "name":	"a21",
+          "enabled":	false,
+          "idle":	{
+            "value":	22601,
+            "variance":	0
+          }
+        },
+        "a22":	{
+          "name":	"a22",
+          "enabled":	false,
+          "idle":	{
+            "value":	22601,
+            "variance":	0
+          }
+        },
+        "a23":	{
+          "name":	"a23",
+          "enabled":	false,
+          "idle":	{
+            "value":	22601,
+            "variance":	0
+          }
         }
       }
     }
   },
-  "zones": {
-    "night": [
-      "a10",
-      "a11"
-    ],
-    "all": [
-      "a10",
-      "a11",
-      "a12",
-      "a13",
-      "a14"
-    ]
-  }
+  "zones":	{
+    "nighttime":	["a10", "a11"],
+    "daytime":	["a23"]
+  },
+  "codes":	["123456", "9876"]
 }
