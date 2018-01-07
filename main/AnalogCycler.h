@@ -10,7 +10,7 @@
 class AnalogCycler
 {
     public:
-        AnalogCycler(std::shared_ptr<smooth::application::io::ADS1115> analog)
+        explicit AnalogCycler(std::shared_ptr<smooth::application::io::ADS1115> analog)
                 : analog(analog)
         {
         }

@@ -24,7 +24,7 @@ I2CTask::I2CTask()
         : Task("I2CTask", 8096, 5, milliseconds(100)),
           i2c_power(GPIO_NUM_27, true, false, true),
           digital_i2c_master(I2C_NUM_0, GPIO_NUM_16, false, GPIO_NUM_17, false, 100000),
-          analog_i2c_master(I2C_NUM_1, GPIO_NUM_25, false, GPIO_NUM_26, false, 1000000),
+          analog_i2c_master(I2C_NUM_1, GPIO_NUM_25, false, GPIO_NUM_26, false, 100000),
           input_change_queue(*this, *this),
           analog_change_queue_1(*this, *this),
           analog_change_queue_2(*this, *this),
