@@ -3,10 +3,12 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <set>
 #include "AnalogRef.h"
 #include "IReferenceValueGetter.h"
 
-class Config : public IReferenceValueGetter
+class Config
+        : public IReferenceValueGetter
 {
     public:
 
@@ -22,7 +24,9 @@ class Config : public IReferenceValueGetter
         bool is_input_enabled(const std::string& short_name) override;
 
 
-        const std::unordered_map<std::string, std::vector<std::string>> get_zones() const
+        bool has_zone(const std::string& zone_name) const;
+
+        const std::unordered_map<std::string, std::set<std::string>> get_zones() const
         {
             return zones;
         }
@@ -31,23 +35,30 @@ class Config : public IReferenceValueGetter
         {
             return digital_input_names;
         }
+
         const std::vector<std::string> get_analog_input_names() override
         {
             return analog_input_names;
         }
 
         void set_analog_ref(const std::string& short_name, uint32_t ref_value);
+
+        void set_current_zone(const std::string& name)
+        {
+            current_zone = name;
+        }
+
     private:
         std::unordered_map<std::string, std::string> io_names{};
-        std::unordered_map<std::string, bool> io_enabled{};
         std::unordered_map<std::string, AnalogRef> analog_ref{};
         std::unordered_map<std::string, bool> digital_idle{};
         std::unordered_map<std::string, bool> digital_startup{};
-        std::unordered_map<std::string, std::vector<std::string>> zones{};
+        std::unordered_map<std::string, std::set<std::string>> zones{};
         std::vector<std::string> codes{};
 
         const std::vector<std::string> digital_input_names{"i0", "i1", "i2", "i3", "i4", "i4", "i6", "i7"};
         const std::vector<std::string> digital_output_names{"o0", "o1", "o2", "o3", "o4", "o4", "o6", "o7"};
         const std::vector<std::string> analog_input_names{"a10", "a11", "a12", "a13", "a20", "a21", "a22", "a23"};
 
+        std::string current_zone{};
 };

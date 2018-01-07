@@ -19,7 +19,7 @@ class AlarmFSM
         explicit AlarmFSM(IOStatus& io_status, smooth::core::Task& task);
 
         void tick();
-        void arm();
+        void arm(const std::string& zone_name);
         bool are_all_inputs_within_limits() const;
         void disarm();
 
@@ -42,6 +42,12 @@ class AlarmFSM
         }
 
         const std::string get_state_name();
+
+        const std::string& get_zone() const
+        {
+            return zone;
+        }
+
     private:
         IOStatus& io_status;
         smooth::core::Task& task;
@@ -49,12 +55,13 @@ class AlarmFSM
         smooth::core::ipc::SubscribingTaskEventQueue<DigitalValueNotIdle> digital_events;
         smooth::application::rgb_led::RGBLed rgb;
         smooth::core::io::Output bell;
-
+        std::string zone{};
 };
 
 template<typename BaseState>
-void AlarmFSM<BaseState>::arm()
+void AlarmFSM<BaseState>::arm(const std::string& zone_name)
 {
+    zone = zone_name;
     this->get_state()->arm();
 }
 

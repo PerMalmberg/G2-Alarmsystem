@@ -4,49 +4,42 @@
       "input":	{
         "i0":	{
           "name":	"Front door lock",
-          "enabled":	false,
           "idle":	{
             "value":	true
           }
         },
         "i1":	{
           "name":	"Side door lock",
-          "enabled":	false,
           "idle":	{
             "value":	true
           }
         },
         "i2":	{
           "name":	"i2",
-          "enabled":	false,
           "idle":	{
             "value":	false
           }
         },
         "i3":	{
           "name":	"i3",
-          "enabled":	false,
           "idle":	{
             "value":	false
           }
         },
         "i4":	{
           "name":	"i4",
-          "enabled":	false,
           "idle":	{
             "value":	false
           }
         },
         "i6":	{
           "name":	"i6",
-          "enabled":	false,
           "idle":	{
             "value":	false
           }
         },
         "i7":	{
           "name":	"i7",
-          "enabled":	false,
           "idle":	{
             "value":	false
           }
@@ -87,7 +80,6 @@
       "input":	{
         "a10":	{
           "name":	"IR Livingroom",
-          "enabled":	true,
           "idle":	{
             "value":	13240,
             "variance":	400
@@ -95,7 +87,6 @@
         },
         "a11":	{
           "name":	"a11",
-          "enabled":	false,
           "idle":	{
             "value":	22444,
             "variance":	0
@@ -103,7 +94,6 @@
         },
         "a12":	{
           "name":	"a12",
-          "enabled":	false,
           "idle":	{
             "value":	22606,
             "variance":	0
@@ -111,7 +101,6 @@
         },
         "a13":	{
           "name":	"a13",
-          "enabled":	false,
           "idle":	{
             "value":	19053,
             "variance":	0
@@ -119,7 +108,6 @@
         },
         "a20":	{
           "name":	"a20",
-          "enabled":	false,
           "idle":	{
             "value":	22601,
             "variance":	0
@@ -127,7 +115,6 @@
         },
         "a21":	{
           "name":	"a21",
-          "enabled":	false,
           "idle":	{
             "value":	22601,
             "variance":	0
@@ -135,7 +122,6 @@
         },
         "a22":	{
           "name":	"a22",
-          "enabled":	false,
           "idle":	{
             "value":	22601,
             "variance":	0
@@ -143,7 +129,6 @@
         },
         "a23":	{
           "name":	"a23",
-          "enabled":	false,
           "idle":	{
             "value":	22601,
             "variance":	0

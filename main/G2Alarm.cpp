@@ -149,7 +149,15 @@ void G2Alarm::init()
 
     command_dispatcher.add_command(get_name() + "/cmd/arm", [this](const std::string& o)
     {
-        fsm.arm();
+        if(cfg.has_zone(o))
+        {
+            cfg.set_current_zone(o);
+            fsm.arm(o);
+            Log::info("Alarm", Format("Arming zone: {1}", Str(o)));
+        }
+        else{
+            Log::error("Alarm", Format("No such zone: {1}", Str(o)));
+        }
     });
 
 

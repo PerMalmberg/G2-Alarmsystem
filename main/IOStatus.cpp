@@ -79,7 +79,15 @@ bool IOStatus::is_analog_inside_limit(const std::string& name, uint32_t value)
 
     bool inside = value <= max && value >= min;
 
-    if (!inside)
+    if (inside)
+    {
+        Log::info("IOStatus", Format("Analog {1} inside range: {3} <-- {2} --> {4}",
+                                        Str(name),
+                                        UInt32(value),
+                                        Int32(min),
+                                        Int32(max)));
+    }
+    else
     {
         Log::warning("IOStatus", Format("Analog {1} outside range: {3} <-- {2} --> {4}",
                                         Str(name),
