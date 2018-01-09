@@ -160,6 +160,20 @@ void G2Alarm::init()
         }
     });
 
+    command_dispatcher.add_command(get_name() + "/cmd/arm_code", [this](const std::string& o)
+    {
+        if(cfg.has_zone_with_code(o))
+        {
+            auto& zone = cfg.get_zone_for_code(o);
+            cfg.set_current_zone(zone);
+            fsm.arm(zone);
+            Log::info("Alarm", Format("Arming zone: {1}", Str(zone)));
+        }
+        else{
+            Log::error("Alarm", Format("No zone for code: {1}", Str(o)));
+        }
+    });
+
 
     command_dispatcher.add_command(get_name() + "/cmd/disarm", [this](const std::string& o)
     {

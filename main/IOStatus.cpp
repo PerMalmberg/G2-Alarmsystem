@@ -103,7 +103,14 @@ bool IOStatus::is_digital_idle(const std::string& name, bool value)
 {
     bool is_idle = value == ref_getter.get_digital_idle(name);
 
-    if(!is_idle)
+    if(is_idle)
+    {
+        Log::info("IOStatus", Format("Digital {1} idle. Current: {2}, Idle: {3}",
+                                        Str(name),
+                                        Bool(value),
+                                        Bool(ref_getter.get_digital_idle(name))));
+    }
+    else
     {
         Log::warning("IOStatus", Format("Digital {1} not idle. Current: {2}, Idle: {3}",
                                         Str(name),

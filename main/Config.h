@@ -27,9 +27,33 @@ class Config
 
         bool has_zone(const std::string& zone_name) const;
 
-        const std::unordered_map<std::string, ZoneData> get_zones() const
+        bool has_zone_with_code(const std::string& code)
         {
-            return zones;
+            bool res = false;
+
+            for(auto it = zones.begin(); !res && it != zones.end(); it++)
+            {
+                auto& curr = *it;
+                res = curr.second.has_code(code);
+            }
+
+            return res;
+        }
+
+        const std::string get_zone_for_code(const std::string& code) const
+        {
+            std::string res{};
+
+            for(auto it = zones.begin(); res.empty() && it != zones.end(); it++)
+            {
+                auto& curr = *it;
+                if(curr.second.has_code(code))
+                {
+                    res = curr.first;
+                }
+            }
+
+            return res;
         }
 
         const std::vector<std::string> get_digital_input_names() override
