@@ -54,21 +54,22 @@ bool Config::write(const std::string& file)
     for (auto& zone : zones)
     {
         const auto& name = zone.first;
-        const auto& content = zone.second;
+        const auto& zone_data = zone.second;
+
         auto curr = z[name];
-
+        auto codes = curr["codes"];
         int i = 0;
-        for (const auto& input : content)
+        for (auto& code : zone_data.codes)
         {
-            curr[i++] = input;
+            codes[i++] = code;
         }
-    }
 
-    auto codes = v["codes"];
-    int code_count = 0;
-    for(auto& code : this->codes)
-    {
-        codes[code_count++] = code;
+        i = 0;
+        auto inputs = curr["inputs"];
+        for (auto& input : zone_data.inputs)
+        {
+            inputs[i++] = input;
+        }
     }
 
     File f(file);
@@ -158,36 +159,38 @@ bool Config::parse(const char* data)
 
         Log::info("Config", Format("Reading zones"));
 
-        auto zone_cfg = v["zones"];
+        auto zone_data = v["zones"];
         std::vector<std::string> zones_names{};
-        zone_cfg.get_member_names(zones_names);
+        zone_data.get_member_names(zones_names);
         for (const auto& zone_name : zones_names)
         {
             Log::info("Config", Format("Zone: {1}", Str(zone_name)));
-            auto& zone_members = zones[zone_name];
+            auto& zone_target = zones[zone_name];
+            auto zone_src = zone_data[zone_name];
 
-            auto zone_contents = zone_cfg[zone_name];
-            for (int i = 0; i < zone_contents.get_array_size(); ++i)
+            auto codes_in_config = zone_src["codes"];
+
+            int code_count = codes_in_config.get_array_size();
+            for (int i = 0; i < code_count; ++i)
             {
-                auto member = zone_contents[i];
-                std::string value = static_cast<const char*>(member);
-                if (!value.empty())
+                auto code = codes_in_config[i].get_string("");
+                if(!code.empty())
                 {
-                    Log::info("Config", Format("Adding {1} to zone {2}", Str(value), Str(zone_name)));
-                    zone_members.emplace(value);
+                    Log::info("Config", Format("Zone {1}, code: {2}", Str(zone_name), Str(code)));
+                    zone_target.codes.emplace(code);
                 }
             }
-        }
 
-        Log::info("Config", Format("Reading codes"));
-        auto codes = v["codes"];
-        for(int i = 0; i < codes.get_array_size(); ++i)
-        {
-            std::string c = codes[i].get_string("");
-            if(!c.empty())
+            auto inputs_in_config = zone_src["inputs"];
+            int input_count = inputs_in_config.get_array_size();
+            for (int i = 0; i < input_count; ++i)
             {
-                Log::info("Config", Format("Code: {1}", Str(c)));
-                this->codes.push_back(c);
+                auto input = inputs_in_config[i].get_string("");
+                if(!input.empty())
+                {
+                    Log::info("Config", Format("Zone {1}, input: {2}", Str(zone_name), Str(input)));
+                    zone_target.inputs.emplace(input);
+                }
             }
         }
 
@@ -218,13 +221,13 @@ bool Config::get_digital_startup_state(const std::string& short_name)
 
 bool Config::is_input_enabled(const std::string& short_name)
 {
-    bool res= false;
+    bool res = false;
 
     auto it = zones.find(current_zone);
-    if(it != zones.end())
+    if (it != zones.end())
     {
         auto& pair = *it;
-        res = pair.second.find(short_name) != pair.second.end();
+        res = pair.second.inputs.find(short_name) != pair.second.inputs.end();
     }
 
     return res;

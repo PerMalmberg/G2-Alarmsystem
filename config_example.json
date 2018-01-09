@@ -138,8 +138,13 @@
     }
   },
   "zones":	{
-    "nighttime":	["a10", "a11"],
-    "daytime":	["a23"]
-  },
-  "codes":	["123456", "9876"]
+    "daytime":	{
+      "codes":	["0987", "6543"],
+      "inputs":	["a23"]
+    },
+    "nighttime":	{
+      "codes":	["1234", "5678"],
+      "inputs":	["a10", "a11"]
+    }
+  }
 }
