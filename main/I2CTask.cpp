@@ -22,7 +22,6 @@ static const gpio_num_t ANALOG_CHANGE_PIN_2 = GPIO_NUM_35;
 
 I2CTask::I2CTask()
         : Task("I2CTask", 8096, 5, milliseconds(100)),
-          i2c_power(GPIO_NUM_27, true, false, true),
           digital_i2c_master(I2C_NUM_0, GPIO_NUM_16, false, GPIO_NUM_17, false, 100000),
           analog_i2c_master(I2C_NUM_1, GPIO_NUM_25, false, GPIO_NUM_26, false, 100000),
           input_change_queue(*this, *this),
@@ -37,8 +36,6 @@ I2CTask::I2CTask()
 
 void I2CTask::init()
 {
-    i2c_power.set();
-
     digital_io = digital_i2c_master.create_device<MCP23017>(0x20);
 
     if (digital_io->is_present())

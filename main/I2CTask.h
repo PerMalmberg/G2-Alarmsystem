@@ -28,7 +28,6 @@ class I2CTask
         void event(const I2CSetOutput& ev) override;
 
     private:
-        smooth::core::io::Output i2c_power;
         smooth::core::io::i2c::Master digital_i2c_master;
         smooth::core::io::i2c::Master analog_i2c_master;
         std::unique_ptr<smooth::application::io::MCP23017> digital_io{};
