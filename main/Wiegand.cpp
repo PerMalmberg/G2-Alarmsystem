@@ -15,19 +15,19 @@ using namespace smooth::core::timer;
 
 static const gpio_num_t D0 = GPIO_NUM_0;
 static const gpio_num_t D1 = GPIO_NUM_4;
-static const std::chrono::milliseconds timeout(25);
+static const std::chrono::milliseconds timeout(150);
 
 Wiegand::Wiegand(smooth::core::Task& task, IWiegandSignal& receiver)
         : receiver(receiver),
           bit_queue(task, *this),
-          d0(bit_queue, GPIO_NUM_0, false, false, GPIO_INTR_NEGEDGE),
-          d1(bit_queue, GPIO_NUM_4, false, false, GPIO_INTR_NEGEDGE),
+          d0(bit_queue, D0, false, false, GPIO_INTR_NEGEDGE),
+          d1(bit_queue, D1, false, false, GPIO_INTR_NEGEDGE),
           line_silent("WiegandLineSilent", 5, task, *this),
           expire(Timer::create("WiegandLineSilent",
                                1,
                                line_silent,
                                false,
-                               milliseconds(100)))
+                               timeout))
 {
 }
 
@@ -53,7 +53,7 @@ void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
         auto high = data.to_ullong() & 0xF0;
         if (low == ~high)
         {
-            receiver.wiegand_number(low);
+            receiver.wiegand_number(static_cast<uint8_t>(low));
         }
     }
     else if (bit_count == 26)
@@ -86,7 +86,7 @@ void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
 
         if (valid)
         {
-            uint32_t id = (upper.to_ullong() & 0xFFFF) | (lower.to_ullong() >> 1);
+            uint32_t id = static_cast<uint32_t>((upper.to_ullong() & 0xFFFF) | (lower.to_ullong() >> 1));
             receiver.wiegand_id(id, 4);
         }
     }
