@@ -24,6 +24,8 @@ G2Alarm::G2Alarm()
         : Application(APPLICATION_BASE_PRIO, milliseconds(100)),
           level_shifter_enable(GPIO_NUM_5, true, false, true),
           control_panel(*this, *this),
+          cfg(*this),
+          arm_by_number(cfg, *this, 10, 10, 11, milliseconds(1500)),
           io_status(cfg),
           analog_data("AnalogData", 25, *this, *this),
           digital_data("DigitalData", 25, *this, *this),
@@ -50,7 +52,7 @@ void G2Alarm::init()
         try
         {
             // Parse the config before writing it to disk
-            Config tmp;
+            Config tmp(*this);
             if (tmp.parse(o.data()))
             {
                 // Store new config
@@ -149,27 +151,29 @@ void G2Alarm::init()
 
     command_dispatcher.add_command(get_name() + "/cmd/arm", [this](const std::string& o)
     {
-        if(cfg.has_zone(o))
+        if (cfg.has_zone(o))
         {
-            cfg.set_current_zone(o);
+            set_current_zone(o);
             fsm.arm(o);
             Log::info("Alarm", Format("Arming zone: {1}", Str(o)));
         }
-        else{
+        else
+        {
             Log::error("Alarm", Format("No such zone: {1}", Str(o)));
         }
     });
 
     command_dispatcher.add_command(get_name() + "/cmd/arm_code", [this](const std::string& o)
     {
-        if(cfg.has_zone_with_code(o))
+        if (cfg.has_zone_with_code(o))
         {
             auto& zone = cfg.get_zone_for_code(o);
-            cfg.set_current_zone(zone);
+            set_current_zone(zone);
             fsm.arm(zone);
             Log::info("Alarm", Format("Arming zone: {1}", Str(zone)));
         }
-        else{
+        else
+        {
             Log::error("Alarm", Format("No zone for code: {1}", Str(o)));
         }
     });
@@ -177,7 +181,7 @@ void G2Alarm::init()
 
     command_dispatcher.add_command(get_name() + "/cmd/disarm", [this](const std::string& o)
     {
-        fsm.disarm();
+        disarm();
     });
 
     level_shifter_enable.set();
@@ -224,23 +228,38 @@ void G2Alarm::tick()
                      fsm.get_state_name(),
                      QoS::AT_MOST_ONCE,
                      false);
+
+        mqtt.publish(get_name() + "/status/zone",
+                     get_current_zone(),
+                     QoS::AT_MOST_ONCE,
+                     false);
     }
 
     fsm.tick();
+    arm_by_number.tick();
 }
 
 
 void G2Alarm::wiegand_number(uint8_t number)
 {
-    UInt32 s(number);
-    mqtt.publish("Wiegand/8", s.str(), QoS::AT_MOST_ONCE, false);
-
+    arm_by_number.number(number);
+    mqtt.publish("Wiegand/key", std::to_string(number), QoS::AT_MOST_ONCE, false);
 }
 
-void G2Alarm::wiegand_id(uint32_t id, uint8_t byte_count)
+void G2Alarm::wiegand_id(uint32_t id, uint8_t /*byte_count*/)
 {
-    UInt32 s(id);
-    mqtt.publish("Wiegand/24", s.str(), QoS::AT_MOST_ONCE, false);
+    auto s = std::to_string(id);
+    while(!s.empty())
+    {
+        std::string part{};
+        part += *s.begin();
+        s.erase(s.begin());
+
+        arm_by_number.number(std::atoi(part.c_str()));
+    }
+    arm_by_number.commit();
+
+    mqtt.publish("Wiegand/card", std::to_string(id), QoS::AT_MOST_ONCE, false);
 }
 
 void G2Alarm::event(const smooth::application::network::mqtt::MQTTData& event)
@@ -281,7 +300,21 @@ void G2Alarm::event(const DigitalValue& event)
         std::string topic = get_name();
         topic += "/io_status/digital/i";
         topic += event.get_name();
-
         mqtt.publish(topic, std::to_string(event.get_value()), QoS::AT_MOST_ONCE, false);
     }
+}
+
+bool G2Alarm::is_armed() const
+{
+    return fsm.is_armed();
+}
+
+void G2Alarm::arm(std::string& zone)
+{
+    fsm.arm(zone);
+}
+
+void G2Alarm::disarm()
+{
+    fsm.disarm();
 }

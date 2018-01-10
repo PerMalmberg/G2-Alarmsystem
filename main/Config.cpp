@@ -223,7 +223,7 @@ bool Config::is_input_enabled(const std::string& short_name)
 {
     bool res = false;
 
-    auto it = zones.find(current_zone);
+    auto it = zones.find(alarm_state.get_current_zone());
     if (it != zones.end())
     {
         auto& pair = *it;

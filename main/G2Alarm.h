@@ -23,6 +23,8 @@
 #include "CommandDispatcher.h"
 #include "Config.h"
 #include "states/AlarmFSM.h"
+#include "ArmByNumber.h"
+#include "IAlarmState.h"
 
 class G2Alarm
         : public smooth::core::Application,
@@ -30,7 +32,8 @@ class G2Alarm
           public smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>,
           public smooth::core::ipc::IEventListener<std::pair<std::string, int64_t>>,
           public smooth::core::ipc::IEventListener<AnalogValue>,
-          public smooth::core::ipc::IEventListener<DigitalValue>
+          public smooth::core::ipc::IEventListener<DigitalValue>,
+          public IAlarmState
 {
     public:
         G2Alarm();
@@ -46,11 +49,26 @@ class G2Alarm
         void wiegand_number(uint8_t number) override;
         void wiegand_id(uint32_t id, uint8_t byte_count) override;
 
+        bool is_armed() const override;
+        void arm(std::string& zone) override;
+        void disarm() override;
+
+        std::string get_current_zone() const override
+        {
+            return current_zone;
+        }
+
+        void set_current_zone(const std::string& name) override
+        {
+            current_zone = name;
+        }
+
     private:
         smooth::core::io::Output level_shifter_enable;
 
         Wiegand control_panel;
-        Config cfg{};
+        Config cfg;
+        ArmByNumber arm_by_number;
         IOStatus io_status;
         smooth::core::ipc::SubscribingTaskEventQueue<AnalogValue> analog_data;
         smooth::core::ipc::SubscribingTaskEventQueue<DigitalValue> digital_data;
@@ -62,6 +80,7 @@ class G2Alarm
         smooth::core::timer::ElapsedTime uptime{};
         smooth::core::timer::ElapsedTime mqtt_send_period{};
         AlarmFSM<AlarmBaseState> fsm;
+        std::string current_zone{};
 
 
         void read_configuration();

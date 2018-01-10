@@ -5,7 +5,7 @@
 class AlarmBaseState
 {
     public:
-        explicit AlarmBaseState(AlarmFSM<AlarmBaseState>& fsm, std::string name) : fsm(fsm), name(name)
+        explicit AlarmBaseState(AlarmFSM<AlarmBaseState>& fsm, const std::string& name) : fsm(fsm), name(name)
         {
         }
 
@@ -27,6 +27,11 @@ class AlarmBaseState
 
         virtual void tick()
         {
+        }
+
+        virtual bool is_armed() const
+        {
+            return false;
         }
 
         std::string get_name() const

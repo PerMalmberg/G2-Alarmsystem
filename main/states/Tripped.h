@@ -16,6 +16,12 @@ class Tripped
 
         void enter_state() override;
         void leave_state() override;
+
+        bool is_armed() const override
+        {
+            return true;
+        }
+
     private:
         uint16_t led = 0;
 };

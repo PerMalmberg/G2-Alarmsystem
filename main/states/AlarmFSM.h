@@ -48,6 +48,7 @@ class AlarmFSM
             return zone;
         }
 
+        bool is_armed() const;
     private:
         IOStatus& io_status;
         smooth::core::Task& task;
@@ -110,5 +111,11 @@ template<typename BaseState>
 const std::string AlarmFSM<BaseState>::get_state_name()
 {
     return this->get_state()->get_name();
+}
+
+template<typename BaseState>
+bool AlarmFSM<BaseState>::is_armed() const
+{
+    return this->get_state()->is_armed();
 }
 

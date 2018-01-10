@@ -46,7 +46,10 @@ set(SOURCE_FILES
         main/states/events/AnalogValueOutsideLimits.h
         main/states/events/DigitalValueNotIdle.h
         main/I2CSetOutputCmd.h
-        main/ZoneData.h)
+        main/ZoneData.h
+        main/ArmByNumber.cpp
+        main/ArmByNumber.h
+        main/IAlarmState.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)

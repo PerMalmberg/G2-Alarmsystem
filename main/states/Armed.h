@@ -17,6 +17,11 @@ class Armed
         void disarm() override;
         void tick() override;
 
+        bool is_armed() const override
+        {
+            return true;
+        }
+
         void event(const AnalogValueOutsideLimits& event) override;
         void event(const DigitalValueNotIdle& event) override;
     private:
