@@ -20,7 +20,7 @@ void ArmByNumber::number(int num)
     {
         if (cfg.has_zone_with_code(current))
         {
-            if (alarm_state.is_armed())
+            if (alarm_state.is_armed() || alarm_state.is_arming())
             {
                 // Any valid code disarms
                 alarm_state.disarm();

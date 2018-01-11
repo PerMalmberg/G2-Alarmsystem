@@ -34,6 +34,11 @@ class AlarmBaseState
             return false;
         }
 
+        virtual bool is_arming() const
+        {
+            return false;
+        }
+
         std::string get_name() const
         {
             return name;
@@ -49,5 +54,6 @@ class AlarmBaseState
 
     protected:
         AlarmFSM<AlarmBaseState>& fsm;
+    private:
         std::string name;
 };

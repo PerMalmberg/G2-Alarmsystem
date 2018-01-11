@@ -32,7 +32,7 @@ G2Alarm::G2Alarm()
           mqtt_data("MQTTData", 10, *this, *this),
           mqtt("Alarm", seconds(10), 4096, 5, mqtt_data),
           general_message("General message", 10, *this, *this),
-          fsm(io_status, *this)
+          fsm(io_status, cfg, *this)
 {
 }
 
@@ -249,7 +249,7 @@ void G2Alarm::wiegand_number(uint8_t number)
 void G2Alarm::wiegand_id(uint32_t id, uint8_t /*byte_count*/)
 {
     auto s = std::to_string(id);
-    while(!s.empty())
+    while (!s.empty())
     {
         std::string part{};
         part += *s.begin();
@@ -288,8 +288,15 @@ void G2Alarm::event(const AnalogValue& event)
         std::string topic = get_name();
         topic += "/io_status/analog/";
         topic += event.get_name();
-
-        mqtt.publish(topic, std::to_string(event.get_value()), QoS::AT_MOST_ONCE, false);
+        auto& ref = cfg.get_analog_reference(event.get_name());
+        json::Value v{};
+        v["current"] = static_cast<int>(event.get_value());
+        v["idle_value"] = ref.value;
+        v["variance"] = ref.variance;
+        v["min"] = ref.value - ref.variance;
+        v["max"] = ref.value + ref.variance;
+        v["is_idle"].set(io_status.is_analog_inside_limit(event.get_name(), event.get_value()));
+        mqtt.publish(topic, v.to_string(), QoS::AT_MOST_ONCE, false);
     }
 }
 
@@ -300,13 +307,23 @@ void G2Alarm::event(const DigitalValue& event)
         std::string topic = get_name();
         topic += "/io_status/digital/i";
         topic += event.get_name();
-        mqtt.publish(topic, std::to_string(event.get_value()), QoS::AT_MOST_ONCE, false);
+
+        json::Value v{};
+        v["current"] = event.get_value();
+        v["idle_value"] = cfg.get_digital_idle(event.get_name());
+        v["is_idle"].set(io_status.is_digital_idle(event.get_name(), event.get_value()));
+        mqtt.publish(topic, v.to_string(), QoS::AT_MOST_ONCE, false);
     }
 }
 
 bool G2Alarm::is_armed() const
 {
     return fsm.is_armed();
+}
+
+bool G2Alarm::is_arming() const
+{
+    return fsm.is_arming();
 }
 
 void G2Alarm::arm(std::string& zone)

@@ -29,6 +29,7 @@ bool Config::write(const std::string& file)
         auto curr = dig_input[name];
         curr["name"] = io_names[name];
         curr["idle"]["value"].set(digital_idle[name]);
+        curr["entry_delay"] = static_cast<int>(digital_entry_delay[name].count());
     }
 
     auto dig_output = v["io"]["digital"]["output"];
@@ -48,6 +49,7 @@ bool Config::write(const std::string& file)
         const auto& idle_val = analog_ref[name];
         idle["value"] = idle_val.value;
         idle["variance"] = idle_val.variance;
+        curr["entry_delay"] = static_cast<int>(analog_entry_delay[name].count());
     }
 
     auto z = v["zones"];
@@ -71,6 +73,8 @@ bool Config::write(const std::string& file)
             inputs[i++] = input;
         }
     }
+
+    v["exit_delay"] = static_cast<int>(exit_delay.count());
 
     File f(file);
     return f.write(v.to_string());
@@ -116,10 +120,14 @@ bool Config::parse(const char* data)
             auto variance = idle["variance"].get_int(0);
 
             analog_ref[name] = AnalogRef{value, variance};
-            Log::info("Analog", Format("{1} ref value: {2}, variance: {3}",
+
+            analog_entry_delay[name] = std::chrono::seconds(input["entry_delay"].get_int(0));
+
+            Log::info("Analog", Format("{1} ref value: {2}, variance: {3}, entry delay: {4}",
                                        Str(get_custom_name(name)),
                                        Int32(value),
-                                       Int32(variance)));
+                                       Int32(variance),
+                                       Int64(analog_entry_delay[name].count())));
         }
 
         Log::info("Config", Format("Reading digital input details"));
@@ -136,9 +144,12 @@ bool Config::parse(const char* data)
 
             digital_idle[name] = idle;
 
-            Log::info("Digital", Format("{1} idle value: {2}",
+            digital_entry_delay[name] = std::chrono::seconds(input["entry_delay"].get_int(0));
+
+            Log::info("Digital", Format("{1} idle value: {2}, delay: entry delay {3}",
                                         Str(get_custom_name(name)),
-                                        Bool(digital_idle[name])));
+                                        Bool(digital_idle[name]),
+                                        Int64(digital_entry_delay[name].count())));
         }
 
         Log::info("Config", Format("Reading digital output details"));
@@ -174,7 +185,7 @@ bool Config::parse(const char* data)
             for (int i = 0; i < code_count; ++i)
             {
                 auto code = codes_in_config[i].get_string("");
-                if(!code.empty())
+                if (!code.empty())
                 {
                     Log::info("Config", Format("Zone {1}, code: {2}", Str(zone_name), Str(code)));
                     zone_target.codes.emplace(code);
@@ -186,13 +197,16 @@ bool Config::parse(const char* data)
             for (int i = 0; i < input_count; ++i)
             {
                 auto input = inputs_in_config[i].get_string("");
-                if(!input.empty())
+                if (!input.empty())
                 {
                     Log::info("Config", Format("Zone {1}, input: {2}", Str(zone_name), Str(input)));
                     zone_target.inputs.emplace(input);
                 }
             }
         }
+
+        exit_delay = std::chrono::seconds(v["exit_delay"].get_int(0));
+        Log::info("Config", Format("Exit delay: {1}", Int64(exit_delay.count())));
 
         res = true;
     }

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <set>
+#include <chrono>
 #include "AnalogRef.h"
 #include "IReferenceValueGetter.h"
 #include "ZoneData.h"
@@ -72,13 +73,21 @@ class Config
 
         void set_analog_ref(const std::string& short_name, uint32_t ref_value);
 
+        std::chrono::seconds get_exit_delay() const
+        {
+            return exit_delay;
+        }
+
     private:
         IAlarmState& alarm_state;
         std::unordered_map<std::string, std::string> io_names{};
         std::unordered_map<std::string, AnalogRef> analog_ref{};
         std::unordered_map<std::string, bool> digital_idle{};
         std::unordered_map<std::string, bool> digital_startup{};
+        std::unordered_map<std::string, std::chrono::seconds> analog_entry_delay{};
+        std::unordered_map<std::string, std::chrono::seconds> digital_entry_delay{};
         std::unordered_map<std::string, ZoneData> zones{};
+        std::chrono::seconds exit_delay{};
 
         const std::vector<std::string> digital_input_names{"i0", "i1", "i2", "i3", "i4", "i4", "i6", "i7"};
         const std::vector<std::string> digital_output_names{"o0", "o1", "o2", "o3", "o4", "o4", "o6", "o7"};

@@ -24,12 +24,18 @@ void Armed::disarm()
 
 void Armed::event(const AnalogValueOutsideLimits& event)
 {
-    fsm.set_state(new(fsm)Tripped(fsm));
+    if(fsm.is_input_enabled(event.get_name()))
+    {
+        fsm.set_state(new(fsm)Tripped(fsm));
+    }
 }
 
 void Armed::event(const DigitalValueNotIdle& event)
 {
-    fsm.set_state(new(fsm)Tripped(fsm));
+    if(fsm.is_input_enabled(event.get_name()))
+    {
+        fsm.set_state(new(fsm)Tripped(fsm));
+    }
 }
 
 void Armed::tick()

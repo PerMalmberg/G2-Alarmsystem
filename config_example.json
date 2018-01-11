@@ -6,43 +6,50 @@
           "name":	"Front door lock",
           "idle":	{
             "value":	true
-          }
+          },
+          "entry_delay":	5
         },
         "i1":	{
           "name":	"Side door lock",
           "idle":	{
             "value":	true
-          }
+          },
+          "entry_delay":	0
         },
         "i2":	{
           "name":	"i2",
           "idle":	{
             "value":	false
-          }
+          },
+          "entry_delay":	0
         },
         "i3":	{
           "name":	"i3",
           "idle":	{
             "value":	false
-          }
+          },
+          "entry_delay":	0
         },
         "i4":	{
           "name":	"i4",
           "idle":	{
             "value":	false
-          }
+          },
+          "entry_delay":	0
         },
         "i6":	{
           "name":	"i6",
           "idle":	{
             "value":	false
-          }
+          },
+          "entry_delay":	0
         },
         "i7":	{
           "name":	"i7",
           "idle":	{
             "value":	false
-          }
+          },
+          "entry_delay":	0
         }
       },
       "output":	{
@@ -81,70 +88,79 @@
         "a10":	{
           "name":	"IR Livingroom",
           "idle":	{
-            "value":	13240,
-            "variance":	400
-          }
+            "value":	14209,
+            "variance":	600
+          },
+          "entry_delay":	5
         },
         "a11":	{
           "name":	"a11",
           "idle":	{
-            "value":	22444,
-            "variance":	0
-          }
+            "value":	20507,
+            "variance":	600
+          },
+          "entry_delay":	0
         },
         "a12":	{
           "name":	"a12",
           "idle":	{
-            "value":	22606,
+            "value":	20668,
             "variance":	0
-          }
+          },
+          "entry_delay":	0
         },
         "a13":	{
           "name":	"a13",
           "idle":	{
-            "value":	19053,
+            "value":	19215,
             "variance":	0
-          }
+          },
+          "entry_delay":	0
         },
         "a20":	{
           "name":	"a20",
           "idle":	{
-            "value":	22601,
+            "value":	20503,
             "variance":	0
-          }
+          },
+          "entry_delay":	0
         },
         "a21":	{
           "name":	"a21",
           "idle":	{
-            "value":	22601,
+            "value":	20503,
             "variance":	0
-          }
+          },
+          "entry_delay":	0
         },
         "a22":	{
           "name":	"a22",
           "idle":	{
-            "value":	22601,
+            "value":	20503,
             "variance":	0
-          }
+          },
+          "entry_delay":	0
         },
         "a23":	{
           "name":	"a23",
           "idle":	{
-            "value":	22601,
+            "value":	20503,
             "variance":	0
-          }
+          },
+          "entry_delay":	0
         }
       }
     }
   },
   "zones":	{
-    "daytime":	{
-      "codes":	["0987", "6543"],
-      "inputs":	["a23"]
-    },
     "nighttime":	{
-      "codes":	["1234", "5678"],
-      "inputs":	["a10", "a11"]
+      "codes":	["1234", "42863", "5678"],
+      "inputs":	["a10", "a11", "i0"]
+    },
+    "daytime":	{
+      "codes":	["0987", "47311", "6543"],
+      "inputs":	["a23"]
     }
-  }
+  },
+  "exit_delay":	15
 }

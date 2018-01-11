@@ -50,6 +50,7 @@ class G2Alarm
         void wiegand_id(uint32_t id, uint8_t byte_count) override;
 
         bool is_armed() const override;
+        bool is_arming() const override;
         void arm(std::string& zone) override;
         void disarm() override;
 

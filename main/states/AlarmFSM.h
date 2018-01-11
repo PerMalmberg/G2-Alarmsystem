@@ -6,6 +6,7 @@
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/application/rgb_led/RGBLed.h>
 #include <smooth/core/io/Output.h>
+#include <Config.h>
 #include "states/events/DigitalValueNotIdle.h"
 #include "states/events/AnalogValueOutsideLimits.h"
 
@@ -16,7 +17,7 @@ class AlarmFSM
           smooth::core::ipc::IEventListener<DigitalValueNotIdle>
 {
     public:
-        explicit AlarmFSM(IOStatus& io_status, smooth::core::Task& task);
+        explicit AlarmFSM(IOStatus& io_status, Config& cfg, smooth::core::Task& task);
 
         void tick();
         void arm(const std::string& zone_name);
@@ -43,32 +44,32 @@ class AlarmFSM
 
         const std::string get_state_name();
 
-        const std::string& get_zone() const
-        {
-            return zone;
-        }
+        std::chrono::seconds get_exit_delay() const;
 
         bool is_armed() const;
+        bool is_arming() const;
+
+        bool is_input_enabled(const std::string& name);
     private:
         IOStatus& io_status;
+        Config& cfg;
         smooth::core::Task& task;
         smooth::core::ipc::SubscribingTaskEventQueue<AnalogValueOutsideLimits> analog_events;
         smooth::core::ipc::SubscribingTaskEventQueue<DigitalValueNotIdle> digital_events;
         smooth::application::rgb_led::RGBLed rgb;
         smooth::core::io::Output bell;
-        std::string zone{};
 };
 
 template<typename BaseState>
 void AlarmFSM<BaseState>::arm(const std::string& zone_name)
 {
-    zone = zone_name;
     this->get_state()->arm();
 }
 
 template<typename BaseState>
-AlarmFSM<BaseState>::AlarmFSM(IOStatus& io_status, smooth::core::Task& task)
+AlarmFSM<BaseState>::AlarmFSM(IOStatus& io_status, Config& cfg, smooth::core::Task& task)
         : io_status(io_status),
+          cfg(cfg),
           task(task),
           analog_events("FSMAnalog", 10, task, *this),
           digital_events("FSMDigital", 10, task, *this),
@@ -117,5 +118,23 @@ template<typename BaseState>
 bool AlarmFSM<BaseState>::is_armed() const
 {
     return this->get_state()->is_armed();
+}
+
+template<typename BaseState>
+bool AlarmFSM<BaseState>::is_arming() const
+{
+    return this->get_state()->is_arming();
+}
+
+template<typename BaseState>
+std::chrono::seconds AlarmFSM<BaseState>::get_exit_delay() const
+{
+    return cfg.get_exit_delay();
+}
+
+template<typename BaseState>
+bool AlarmFSM<BaseState>::is_input_enabled(const std::string& name)
+{
+    return cfg.is_input_enabled(name);
 }
 

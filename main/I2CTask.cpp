@@ -86,6 +86,7 @@ void I2CTask::tick()
 {
     cycler_1->trigger_read();
     cycler_2->trigger_read();
+    read_digital();
 }
 
 void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
@@ -119,9 +120,7 @@ void I2CTask::event(const smooth::core::io::InterruptInputEvent& ev)
 
 void I2CTask::update_inputs()
 {
-    uint8_t digital;
-    digital_io->read_input(MCP23017::Port::A, digital);
-    publish_digital(digital);
+    read_digital();
     cycler_1->cycle();
     cycler_2->cycle();
 }
@@ -142,4 +141,11 @@ void I2CTask::event(const I2CSetOutput& ev)
     smooth::core::util::ByteSet b(output_state);
     b.set(ev.get_io(), ev.get_state());
     digital_io->set_output(smooth::application::io::MCP23017::Port::B, b);
+}
+
+void I2CTask::read_digital()
+{
+    uint8_t digital;
+    digital_io->read_input(MCP23017::Port::A, digital);
+    publish_digital(digital);
 }

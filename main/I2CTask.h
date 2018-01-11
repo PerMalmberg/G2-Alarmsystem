@@ -43,6 +43,7 @@ class I2CTask
         uint8_t output_state = 0;
 
         void update_inputs();
+        void read_digital();
         void publish_digital(uint8_t pins);
 };
 
