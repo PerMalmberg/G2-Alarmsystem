@@ -76,6 +76,7 @@ bool Config::write(const std::string& file)
     }
 
     v["exit_delay"] = static_cast<int>(exit_delay.count());
+    v["tripped_max_time"] = static_cast<int>(tripped_max_time.count());
 
     File f(file);
     return f.write(v.to_string());
@@ -208,6 +209,7 @@ bool Config::parse(const char* data)
 
         exit_delay = seconds(v["exit_delay"].get_int(0));
         Log::info("Config", Format("Exit delay: {1}", Int64(exit_delay.count())));
+        tripped_max_time = seconds(v["tripped_max_time"].get_int(0));
 
         res = true;
     }

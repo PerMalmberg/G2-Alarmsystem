@@ -162,5 +162,6 @@
       "inputs":	["a23"]
     }
   },
-  "exit_delay":	15
+  "exit_delay":	15,
+  "tripped_max_time": 5
 }

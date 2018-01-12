@@ -78,6 +78,11 @@ class Config
             return exit_delay;
         }
 
+        std::chrono::seconds get_tripped_max_time() const
+        {
+            return tripped_max_time;
+        }
+
         std::chrono::seconds get_entry_delay(const std::string& input);
 
     private:
@@ -90,6 +95,7 @@ class Config
         std::unordered_map<std::string, std::chrono::seconds> digital_entry_delay{};
         std::unordered_map<std::string, ZoneData> zones{};
         std::chrono::seconds exit_delay{};
+        std::chrono::seconds tripped_max_time{};
 
         const std::vector<std::string> digital_input_names{"i0", "i1", "i2", "i3", "i4", "i4", "i6", "i7"};
         const std::vector<std::string> digital_output_names{"o0", "o1", "o2", "o3", "o4", "o4", "o6", "o7"};

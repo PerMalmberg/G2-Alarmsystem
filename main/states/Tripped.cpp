@@ -14,6 +14,7 @@ void Tripped::enter_state()
 {
     I2CSetOutput s(0, true);
     Publisher<I2CSetOutput>::publish(s);
+    max_time.start();
 }
 
 void Tripped::leave_state()
@@ -32,4 +33,9 @@ void Tripped::tick()
     fsm.clear_rgb();
     fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 33, 0, 0);
     fsm.apply_rgb();
+
+    if(max_time.get_running_time() > fsm.get_tripped_max_time())
+    {
+        fsm.set_state(new(fsm) Idle(fsm));
+    }
 }

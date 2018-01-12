@@ -2,6 +2,7 @@
 
 
 #include "AlarmBaseState.h"
+#include <smooth/core/timer/ElapsedTime.h>
 
 class Tripped
         : public AlarmBaseState
@@ -24,5 +25,6 @@ class Tripped
 
     private:
         uint16_t led = 0;
+        smooth::core::timer::ElapsedTime max_time{};
 };
 
