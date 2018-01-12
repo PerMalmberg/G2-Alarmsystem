@@ -59,11 +59,6 @@ class G2Alarm
             return current_zone;
         }
 
-        void set_current_zone(const std::string& name) override
-        {
-            current_zone = name;
-        }
-
     private:
         smooth::core::io::Output level_shifter_enable;
 

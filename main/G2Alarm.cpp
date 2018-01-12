@@ -153,7 +153,6 @@ void G2Alarm::init()
     {
         if (cfg.has_zone(o))
         {
-            set_current_zone(o);
             fsm.arm(o);
             Log::info("Alarm", Format("Arming zone: {1}", Str(o)));
         }
@@ -168,7 +167,6 @@ void G2Alarm::init()
         if (cfg.has_zone_with_code(o))
         {
             auto& zone = cfg.get_zone_for_code(o);
-            set_current_zone(zone);
             fsm.arm(zone);
             Log::info("Alarm", Format("Arming zone: {1}", Str(zone)));
         }
@@ -328,6 +326,7 @@ bool G2Alarm::is_arming() const
 
 void G2Alarm::arm(std::string& zone)
 {
+    current_zone = zone;
     fsm.arm(zone);
 }
 
