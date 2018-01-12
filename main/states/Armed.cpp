@@ -24,23 +24,42 @@ void Armed::disarm()
 
 void Armed::event(const AnalogValueOutsideLimits& event)
 {
-    if(fsm.is_input_enabled(event.get_name()))
-    {
-        fsm.set_state(new(fsm)Tripped(fsm));
-    }
+    trip(event.get_name());
 }
 
 void Armed::event(const DigitalValueNotIdle& event)
 {
-    if(fsm.is_input_enabled(event.get_name()))
-    {
-        fsm.set_state(new(fsm)Tripped(fsm));
-    }
+    trip(event.get_name());
 }
 
 void Armed::tick()
 {
     fsm.clear_rgb();
-    fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 33, 33, 0);
+    if (entry_delay.is_running())
+    {
+        fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 33, 33, 33);
+    }
+    else
+    {
+        fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 33, 33, 0);
+    }
+
     fsm.apply_rgb();
+
+    if (entry_delay.get_running_time() > entry_delay_limit)
+    {
+        fsm.set_state(new(fsm)Tripped(fsm));
+    }
+}
+
+void Armed::trip(const std::string& input_name)
+{
+    if (!entry_delay.is_running())
+    {
+        if (fsm.is_input_enabled(input_name))
+        {
+            entry_delay_limit = fsm.get_entry_delay(input_name);
+            entry_delay.start();
+        }
+    }
 }

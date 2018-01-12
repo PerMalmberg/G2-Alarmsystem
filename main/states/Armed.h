@@ -2,6 +2,7 @@
 
 
 #include "AlarmBaseState.h"
+#include <smooth/core/timer/ElapsedTime.h>
 
 class Armed
         : public AlarmBaseState
@@ -26,5 +27,9 @@ class Armed
         void event(const DigitalValueNotIdle& event) override;
     private:
         uint16_t led = 0;
+        smooth::core::timer::ElapsedTime entry_delay{};
+        std::chrono::seconds entry_delay_limit{};
+
+        void trip(const std::string& input_name);
 };
 

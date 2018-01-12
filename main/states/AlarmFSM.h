@@ -50,6 +50,7 @@ class AlarmFSM
         bool is_arming() const;
 
         bool is_input_enabled(const std::string& name);
+        std::chrono::seconds get_entry_delay(const std::string& input) const;
     private:
         IOStatus& io_status;
         Config& cfg;
@@ -58,6 +59,8 @@ class AlarmFSM
         smooth::core::ipc::SubscribingTaskEventQueue<DigitalValueNotIdle> digital_events;
         smooth::application::rgb_led::RGBLed rgb;
         smooth::core::io::Output bell;
+
+        void trigger();
 };
 
 template<typename BaseState>
@@ -130,6 +133,12 @@ template<typename BaseState>
 std::chrono::seconds AlarmFSM<BaseState>::get_exit_delay() const
 {
     return cfg.get_exit_delay();
+}
+
+template<typename BaseState>
+std::chrono::seconds AlarmFSM<BaseState>::get_entry_delay(const std::string& input) const
+{
+    return cfg.get_entry_delay(input);
 }
 
 template<typename BaseState>

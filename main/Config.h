@@ -78,6 +78,8 @@ class Config
             return exit_delay;
         }
 
+        std::chrono::seconds get_entry_delay(const std::string& input);
+
     private:
         IAlarmState& alarm_state;
         std::unordered_map<std::string, std::string> io_names{};

@@ -12,6 +12,7 @@
 using namespace smooth::core::json;
 using namespace smooth::core::logging;
 using namespace smooth::core::filesystem;
+using namespace std::chrono;
 
 std::string Config::get_custom_name(const std::string& short_name)
 {
@@ -121,7 +122,7 @@ bool Config::parse(const char* data)
 
             analog_ref[name] = AnalogRef{value, variance};
 
-            analog_entry_delay[name] = std::chrono::seconds(input["entry_delay"].get_int(0));
+            analog_entry_delay[name] = seconds(input["entry_delay"].get_int(0));
 
             Log::info("Analog", Format("{1} ref value: {2}, variance: {3}, entry delay: {4}",
                                        Str(get_custom_name(name)),
@@ -144,7 +145,7 @@ bool Config::parse(const char* data)
 
             digital_idle[name] = idle;
 
-            digital_entry_delay[name] = std::chrono::seconds(input["entry_delay"].get_int(0));
+            digital_entry_delay[name] = seconds(input["entry_delay"].get_int(0));
 
             Log::info("Digital", Format("{1} idle value: {2}, delay: entry delay {3}",
                                         Str(get_custom_name(name)),
@@ -205,7 +206,7 @@ bool Config::parse(const char* data)
             }
         }
 
-        exit_delay = std::chrono::seconds(v["exit_delay"].get_int(0));
+        exit_delay = seconds(v["exit_delay"].get_int(0));
         Log::info("Config", Format("Exit delay: {1}", Int64(exit_delay.count())));
 
         res = true;
@@ -257,6 +258,26 @@ void Config::set_analog_ref(const std::string& short_name, uint32_t ref_value)
 bool Config::has_zone(const std::string& zone_name) const
 {
     return !zone_name.empty() && zones.find(zone_name) != zones.end();
+}
+
+std::chrono::seconds Config::get_entry_delay(const std::string& input)
+{
+    seconds delay{0};
+    auto analog_it = analog_entry_delay.find(input);
+    if (analog_it == analog_entry_delay.end())
+    {
+        auto digital_it = digital_entry_delay.find(input);
+        if (digital_it != digital_entry_delay.end())
+        {
+            delay = (*digital_it).second;
+        }
+    }
+    else
+    {
+        delay = (*analog_it).second;
+    }
+
+    return delay;
 }
 
 
