@@ -31,7 +31,6 @@ G2Alarm::G2Alarm()
           digital_data("DigitalData", 25, *this, *this),
           mqtt_data("MQTTData", 10, *this, *this),
           mqtt("Alarm", seconds(10), 4096, 5, mqtt_data),
-          general_message("General message", 10, *this, *this),
           fsm(io_status, cfg, *this)
 {
 }
@@ -45,6 +44,8 @@ void G2Alarm::init()
     uptime.start();
     mqtt_send_period.start();
     read_configuration();
+
+    status_indicator.start();
 
     mqtt.subscribe(get_name() + "/cmd/#", QoS::EXACTLY_ONCE);
     command_dispatcher.add_command(get_name() + "/cmd/write_config", [this](const std::string& o)
@@ -151,15 +152,7 @@ void G2Alarm::init()
 
     command_dispatcher.add_command(get_name() + "/cmd/arm", [this](const std::string& o)
     {
-        if (cfg.has_zone(o))
-        {
-            fsm.arm(o);
-            Log::info("Alarm", Format("Arming zone: {1}", Str(o)));
-        }
-        else
-        {
-            Log::error("Alarm", Format("No such zone: {1}", Str(o)));
-        }
+        arm(o);
     });
 
     command_dispatcher.add_command(get_name() + "/cmd/arm_code", [this](const std::string& o)
@@ -265,11 +258,6 @@ void G2Alarm::event(const smooth::application::network::mqtt::MQTTData& event)
     command_dispatcher.process(event.first, MqttClient::get_payload(event));
 }
 
-void G2Alarm::event(const std::pair<std::string, int64_t>& event)
-{
-    mqtt.publish(event.first, std::to_string(event.second), QoS::AT_MOST_ONCE, false);
-}
-
 void G2Alarm::read_configuration()
 {
     Log::info("Config", Format("Reading configuration file..."));
@@ -324,10 +312,19 @@ bool G2Alarm::is_arming() const
     return fsm.is_arming();
 }
 
-void G2Alarm::arm(std::string& zone)
+void G2Alarm::arm(const std::string& zone)
 {
-    current_zone = zone;
-    fsm.arm(zone);
+    if (cfg.has_zone(zone))
+    {
+        current_zone = zone;
+        fsm.arm(zone);
+        Log::info("Alarm", Format("Arming zone: {1}", Str(zone)));
+    }
+    else
+    {
+        Log::error("Alarm", Format("No such zone: {1}", Str(zone)));
+        current_zone.clear();
+    }
 }
 
 void G2Alarm::disarm()

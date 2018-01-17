@@ -59,9 +59,6 @@ class AlarmFSM
         smooth::core::ipc::SubscribingTaskEventQueue<AnalogValueOutsideLimits> analog_events;
         smooth::core::ipc::SubscribingTaskEventQueue<DigitalValueNotIdle> digital_events;
         smooth::application::rgb_led::RGBLed rgb;
-
-        smooth::core::io::Output bell;
-        void trigger();
 };
 
 template<typename BaseState>
@@ -77,8 +74,7 @@ AlarmFSM<BaseState>::AlarmFSM(IOStatus& io_status, Config& cfg, smooth::core::Ta
           task(task),
           analog_events("FSMAnalog", 10, task, *this),
           digital_events("FSMDigital", 10, task, *this),
-          rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B()),
-          bell(GPIO_NUM_32, true, false, true, true)
+          rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B())
 {
 }
 

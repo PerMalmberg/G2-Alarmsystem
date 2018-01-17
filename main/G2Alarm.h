@@ -25,12 +25,12 @@
 #include "states/AlarmFSM.h"
 #include "ArmByNumber.h"
 #include "IAlarmState.h"
+#include "status_indication/StatusIndicator.h"
 
 class G2Alarm
         : public smooth::core::Application,
           public IWiegandSignal,
           public smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>,
-          public smooth::core::ipc::IEventListener<std::pair<std::string, int64_t>>,
           public smooth::core::ipc::IEventListener<AnalogValue>,
           public smooth::core::ipc::IEventListener<DigitalValue>,
           public IAlarmState
@@ -41,7 +41,6 @@ class G2Alarm
         void init() override;
 
         void event(const smooth::application::network::mqtt::MQTTData& event) override;
-        void event(const std::pair<std::string, int64_t>& event) override;
 
         void event(const AnalogValue& event) override;
         void event(const DigitalValue& event) override;
@@ -51,7 +50,7 @@ class G2Alarm
 
         bool is_armed() const override;
         bool is_arming() const override;
-        void arm(std::string& zone) override;
+        void arm(const std::string& zone) override;
         void disarm() override;
 
         std::string get_current_zone() const override
@@ -71,12 +70,12 @@ class G2Alarm
         smooth::core::ipc::TaskEventQueue<smooth::application::network::mqtt::MQTTData> mqtt_data;
         smooth::application::network::mqtt::MqttClient mqtt;
         std::unique_ptr<I2CTask> i2c{};
-        smooth::core::ipc::SubscribingTaskEventQueue<std::pair<std::string, int64_t>> general_message;
         CommandDispatcher command_dispatcher{};
         smooth::core::timer::ElapsedTime uptime{};
         smooth::core::timer::ElapsedTime mqtt_send_period{};
         AlarmFSM<AlarmBaseState> fsm;
         std::string current_zone{};
+        StatusIndicator status_indicator{};
 
 
         void read_configuration();

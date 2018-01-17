@@ -7,4 +7,5 @@ COMPONENT_ADD_INCLUDEDIRS := .
 COMPONENT_SRCDIRS := \
     . \
     states \
-    states/events
+    states/events \
+    status_indication

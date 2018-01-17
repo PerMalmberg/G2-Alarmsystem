@@ -49,7 +49,10 @@ set(SOURCE_FILES
         main/ZoneData.h
         main/ArmByNumber.cpp
         main/ArmByNumber.h
-        main/IAlarmState.h)
+        main/IAlarmState.h
+        main/status_indication/StatusIndicator.cpp
+        main/status_indication/StatusIndicator.h
+        main/status_indication/Song.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)
