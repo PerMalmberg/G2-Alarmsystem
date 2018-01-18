@@ -18,16 +18,17 @@ void Tripped::enter_state()
 {
     I2CSetOutput s(0, true);
     Publisher<I2CSetOutput>::publish(s);
+
     max_time.start();
     Publisher<Song>::publish(TrippedSong());
 }
 
 void Tripped::leave_state()
 {
-    I2CSetOutput s(0, false);
 
     Publisher<Song>::publish(Silence());
 
+    I2CSetOutput s(0, false);
     Publisher<I2CSetOutput>::publish(s);
 }
 
