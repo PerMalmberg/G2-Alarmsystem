@@ -1,18 +1,25 @@
 #include "PreArmCheck.h"
 #include "Idle.h"
 #include "Armed.h"
+#include <smooth/core/ipc/Publisher.h>
+#include <status_indication/TrippedSong.h>
+#include <status_indication/ErrorSong.h>
+#include <status_indication/DisarmSong.h>
+#include <status_indication/ExitDelaySong.h>
+
+using namespace smooth::core::ipc;
 
 void PreArmCheck::enter_state()
 {
     // Check if all inputs are within limits
     if (fsm.are_all_inputs_within_limits())
     {
-        // QQQ Signal exit period started
+        Publisher<Song>::publish(ExitDelaySong());
         elapsed.start();
     }
     else
     {
-        // QQQ Signal error
+        Publisher<Song>::publish(ErrorSong());
         fsm.set_state(new(fsm) Idle(fsm));
     }
 }
@@ -27,7 +34,7 @@ void PreArmCheck::tick()
         }
         else
         {
-            // QQQ Signal error
+            Publisher<Song>::publish(ErrorSong());
             fsm.set_state(new(fsm) Idle(fsm));
         }
     }
@@ -39,5 +46,6 @@ void PreArmCheck::tick()
 
 void PreArmCheck::disarm()
 {
+    Publisher<Song>::publish(DisarmSong());
     fsm.set_state(new(fsm) Idle(fsm));
 }

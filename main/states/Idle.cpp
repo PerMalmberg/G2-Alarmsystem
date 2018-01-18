@@ -1,5 +1,10 @@
+#include <status_indication/Song.h>
+#include <status_indication/Silence.h>
+#include <smooth/core/ipc/Publisher.h>
 #include "Idle.h"
 #include "PreArmCheck.h"
+
+using namespace smooth::core::ipc;
 
 void Idle::arm()
 {
@@ -8,6 +13,7 @@ void Idle::arm()
 
 void Idle::enter_state()
 {
+    Publisher<Song>::publish(Silence());
     fsm.clear_rgb();
     fsm.apply_rgb();
 }

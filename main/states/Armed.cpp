@@ -3,12 +3,18 @@
 #include "Idle.h"
 #include "Tripped.h"
 #include <chrono>
+#include <smooth/core/ipc/Publisher.h>
+#include <status_indication/DisarmSong.h>
+#include <status_indication/EntryDelaySong.h>
+#include <status_indication/Silence.h>
 
 using namespace smooth::core::logging;
+using namespace smooth::core::ipc;
 using namespace std::chrono;
 
 void Armed::enter_state()
 {
+    Publisher<Song>::publish(Silence());
 }
 
 void Armed::leave_state()
@@ -19,6 +25,7 @@ void Armed::leave_state()
 
 void Armed::disarm()
 {
+    Publisher<Song>::publish(DisarmSong());
     fsm.set_state(new(fsm)Idle(fsm));
 }
 
@@ -58,6 +65,7 @@ void Armed::trip(const std::string& input_name)
     {
         if (fsm.is_input_enabled(input_name))
         {
+            Publisher<Song>::publish(EntryDelaySong());
             entry_delay_limit = fsm.get_entry_delay(input_name);
             entry_delay.start();
         }

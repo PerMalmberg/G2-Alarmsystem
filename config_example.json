@@ -7,7 +7,7 @@
           "idle":	{
             "value":	true
           },
-          "entry_delay":	5
+          "entry_delay":	15
         },
         "i1":	{
           "name":	"Side door lock",
@@ -153,15 +153,15 @@
     }
   },
   "zones":	{
-    "nighttime":	{
-      "codes":	["1234", "42863", "5678"],
-      "inputs":	["a10", "a11", "i0"]
-    },
     "daytime":	{
       "codes":	["0987", "47311", "6543"],
       "inputs":	["a23"]
+    },
+    "nighttime":	{
+      "codes":	["1234", "42863", "5678"],
+      "inputs":	["a10", "a11", "i0"]
     }
   },
   "exit_delay":	15,
-  "tripped_max_time": 5
+  "tripped_max_time":	15
 }

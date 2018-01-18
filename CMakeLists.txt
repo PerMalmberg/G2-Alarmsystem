@@ -41,8 +41,6 @@ set(SOURCE_FILES
         main/states/Armed.h
         main/states/Tripped.cpp
         main/states/Tripped.h
-        main/states/AutoRearm.cpp
-        main/states/AutoRearm.h
         main/states/events/AnalogValueOutsideLimits.h
         main/states/events/DigitalValueNotIdle.h
         main/I2CSetOutputCmd.h
@@ -52,7 +50,18 @@ set(SOURCE_FILES
         main/IAlarmState.h
         main/status_indication/StatusIndicator.cpp
         main/status_indication/StatusIndicator.h
-        main/status_indication/Song.h)
+        main/status_indication/Song.h
+        main/status_indication/Silence.h
+        main/status_indication/TrippedSong.h
+        main/status_indication/TrippedSong.cpp
+        main/status_indication/ErrorSong.h
+        main/status_indication/ErrorSong.cpp
+        main/status_indication/ExitDelaySong.cpp
+        main/status_indication/ExitDelaySong.h
+        main/status_indication/DisarmSong.cpp
+        main/status_indication/DisarmSong.h
+        main/status_indication/EntryDelaySong.cpp
+        main/status_indication/EntryDelaySong.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)
