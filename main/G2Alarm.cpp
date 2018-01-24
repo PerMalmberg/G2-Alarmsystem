@@ -30,8 +30,8 @@ G2Alarm::G2Alarm()
           analog_data("AnalogData", 25, *this, *this),
           digital_data("DigitalData", 25, *this, *this),
           mqtt_data("MQTTData", 10, *this, *this),
-          mqtt("Alarm", seconds(10), 4096, 5, mqtt_data),
-          fsm(io_status, cfg, *this)
+          mqtt("Alarm", seconds(10), 8092, 5, mqtt_data),
+          fsm(io_status, cfg, *this, mqtt)
 {
 }
 
@@ -45,7 +45,7 @@ void G2Alarm::init()
     mqtt_send_period.start();
     read_configuration();
 
-    status_indicator.start();
+    song_player.start();
 
     mqtt.subscribe(get_name() + "/cmd/#", QoS::EXACTLY_ONCE);
     command_dispatcher.add_command(get_name() + "/cmd/write_config", [this](const std::string& o)
@@ -331,3 +331,5 @@ void G2Alarm::disarm()
     fsm.disarm();
     current_zone.clear();
 }
+
+

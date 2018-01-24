@@ -8,4 +8,4 @@ COMPONENT_SRCDIRS := \
     . \
     states \
     states/events \
-    status_indication
+    sound_indication

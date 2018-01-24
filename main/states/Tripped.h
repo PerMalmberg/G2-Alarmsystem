@@ -24,7 +24,6 @@ class Tripped
         }
 
     private:
-        uint16_t led = 0;
         smooth::core::timer::ElapsedTime max_time{};
 };
 

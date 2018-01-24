@@ -1,5 +1,5 @@
-#include <status_indication/Song.h>
-#include <status_indication/Silence.h>
+#include <sound_indication/Song.h>
+#include <sound_indication/Silence.h>
 #include <smooth/core/ipc/Publisher.h>
 #include "Idle.h"
 #include "PreArmCheck.h"
@@ -14,13 +14,9 @@ void Idle::arm()
 void Idle::enter_state()
 {
     Publisher<Song>::publish(Silence());
-    fsm.clear_rgb();
-    fsm.apply_rgb();
 }
 
 void Idle::tick()
 {
-    fsm.clear_rgb();
-    fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 0, 33, 0);
-    fsm.apply_rgb();
+    roll_color(0, 33, 0);
 }

@@ -8,8 +8,8 @@
 #include <I2CSetOutputCmd.h>
 #include "Tripped.h"
 #include "Idle.h"
-#include <status_indication/TrippedSong.h>
-#include <status_indication/Silence.h>
+#include <sound_indication/TrippedSong.h>
+#include <sound_indication/Silence.h>
 
 using namespace smooth::core::ipc;
 using namespace std::chrono;
@@ -39,9 +39,7 @@ void Tripped::disarm()
 
 void Tripped::tick()
 {
-    fsm.clear_rgb();
-    fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 33, 0, 0);
-    fsm.apply_rgb();
+    roll_color(33, 0, 0);
 
     if(max_time.get_running_time() > fsm.get_tripped_max_time())
     {

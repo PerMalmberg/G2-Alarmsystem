@@ -8,13 +8,13 @@
 #include <smooth/core/timer/Timer.h>
 #include "Song.h"
 
-class StatusIndicator
+class SongPlayer
         : public smooth::core::Task,
         smooth::core::ipc::IEventListener<Song>,
         smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
 {
     public:
-        StatusIndicator();
+        SongPlayer();
         void event(const Song& new_song) override;
         void play_next_tone();
         void event(const smooth::core::timer::TimerExpiredEvent& event);

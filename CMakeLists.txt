@@ -48,20 +48,20 @@ set(SOURCE_FILES
         main/ArmByNumber.cpp
         main/ArmByNumber.h
         main/IAlarmState.h
-        main/status_indication/StatusIndicator.cpp
-        main/status_indication/StatusIndicator.h
-        main/status_indication/Song.h
-        main/status_indication/Silence.h
-        main/status_indication/TrippedSong.h
-        main/status_indication/TrippedSong.cpp
-        main/status_indication/ErrorSong.h
-        main/status_indication/ErrorSong.cpp
-        main/status_indication/ExitDelaySong.cpp
-        main/status_indication/ExitDelaySong.h
-        main/status_indication/DisarmSong.cpp
-        main/status_indication/DisarmSong.h
-        main/status_indication/EntryDelaySong.cpp
-        main/status_indication/EntryDelaySong.h)
+        main/sound_indication/SongPlayer.cpp
+        main/sound_indication/SongPlayer.h
+        main/sound_indication/Song.h
+        main/sound_indication/Silence.h
+        main/sound_indication/TrippedSong.h
+        main/sound_indication/TrippedSong.cpp
+        main/sound_indication/ErrorSong.h
+        main/sound_indication/ErrorSong.cpp
+        main/sound_indication/ExitDelaySong.cpp
+        main/sound_indication/ExitDelaySong.h
+        main/sound_indication/DisarmSong.cpp
+        main/sound_indication/DisarmSong.h
+        main/sound_indication/EntryDelaySong.cpp
+        main/sound_indication/EntryDelaySong.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)

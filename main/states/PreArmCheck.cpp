@@ -2,10 +2,10 @@
 #include "Idle.h"
 #include "Armed.h"
 #include <smooth/core/ipc/Publisher.h>
-#include <status_indication/TrippedSong.h>
-#include <status_indication/ErrorSong.h>
-#include <status_indication/DisarmSong.h>
-#include <status_indication/ExitDelaySong.h>
+#include <sound_indication/TrippedSong.h>
+#include <sound_indication/ErrorSong.h>
+#include <sound_indication/DisarmSong.h>
+#include <sound_indication/ExitDelaySong.h>
 
 using namespace smooth::core::ipc;
 
@@ -39,9 +39,7 @@ void PreArmCheck::tick()
         }
     }
 
-    fsm.clear_rgb();
-    fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 0, 33, 33);
-    fsm.apply_rgb();
+    roll_color(0, 33, 33);
 }
 
 void PreArmCheck::disarm()

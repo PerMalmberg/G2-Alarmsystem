@@ -7,17 +7,22 @@
 #include <smooth/application/rgb_led/RGBLed.h>
 #include <smooth/core/io/Output.h>
 #include <Config.h>
+#include <smooth/core/network/NetworkStatus.h>
 #include "states/events/DigitalValueNotIdle.h"
 #include "states/events/AnalogValueOutsideLimits.h"
+#include <smooth/core/network/NetworkStatus.h>
+#include <smooth/application/network/mqtt/MqttClient.h>
 
 template<typename BaseState>
 class AlarmFSM
         : public smooth::core::fsm::StaticFSM<BaseState, 100>,
           smooth::core::ipc::IEventListener<AnalogValueOutsideLimits>,
-          smooth::core::ipc::IEventListener<DigitalValueNotIdle>
+          smooth::core::ipc::IEventListener<DigitalValueNotIdle>,
+          public smooth::core::ipc::IEventListener<smooth::core::network::NetworkStatus>
 {
     public:
-        explicit AlarmFSM(IOStatus& io_status, Config& cfg, smooth::core::Task& task);
+        explicit AlarmFSM(IOStatus& io_status, Config& cfg, smooth::core::Task& task,
+                          const smooth::application::network::mqtt::MqttClient& client);
 
         void tick();
         void arm(const std::string& zone_name);
@@ -26,6 +31,8 @@ class AlarmFSM
 
         void event(const AnalogValueOutsideLimits& event);
         void event(const DigitalValueNotIdle& event);
+
+        void event(const smooth::core::network::NetworkStatus& event) override;
 
         void set_pixel(uint16_t ix, uint8_t red, uint8_t green, uint8_t blue)
         {
@@ -52,13 +59,27 @@ class AlarmFSM
         bool is_input_enabled(const std::string& name);
         std::chrono::seconds get_entry_delay(const std::string& input) const;
         std::chrono::seconds get_tripped_max_time() const;
+
+        bool is_network_connected() const
+        {
+            return network_connected;
+        }
+
+        bool is_mqtt_connected() const
+        {
+            return client.is_connected();
+        }
+
     private:
+        const smooth::application::network::mqtt::MqttClient& client;
         IOStatus& io_status;
         Config& cfg;
         smooth::core::Task& task;
         smooth::core::ipc::SubscribingTaskEventQueue<AnalogValueOutsideLimits> analog_events;
         smooth::core::ipc::SubscribingTaskEventQueue<DigitalValueNotIdle> digital_events;
+        smooth::core::ipc::SubscribingTaskEventQueue<smooth::core::network::NetworkStatus> network_events;
         smooth::application::rgb_led::RGBLed rgb;
+        bool network_connected = false;
 };
 
 template<typename BaseState>
@@ -68,13 +89,16 @@ void AlarmFSM<BaseState>::arm(const std::string& zone_name)
 }
 
 template<typename BaseState>
-AlarmFSM<BaseState>::AlarmFSM(IOStatus& io_status, Config& cfg, smooth::core::Task& task)
-        : io_status(io_status),
-          cfg(cfg),
-          task(task),
-          analog_events("FSMAnalog", 10, task, *this),
-          digital_events("FSMDigital", 10, task, *this),
-          rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B())
+AlarmFSM<BaseState>::AlarmFSM(IOStatus& io_status, Config& cfg, smooth::core::Task& task,
+                              const smooth::application::network::mqtt::MqttClient& client)
+        :client(client),
+         io_status(io_status),
+         cfg(cfg),
+         task(task),
+         analog_events("FSMAnalog", 10, task, *this),
+         digital_events("FSMDigital", 10, task, *this),
+         network_events("network_events", 10, task, *this),
+         rgb(RMT_CHANNEL_0, GPIO_NUM_2, 5, smooth::application::rgb_led::WS2812B())
 {
 }
 
@@ -150,3 +174,8 @@ bool AlarmFSM<BaseState>::is_input_enabled(const std::string& name)
     return cfg.is_input_enabled(name);
 }
 
+template<typename BaseState>
+void AlarmFSM<BaseState>::event(const smooth::core::network::NetworkStatus& event)
+{
+    network_connected = event.event == smooth::core::network::NetworkEvent::GOT_IP;
+}

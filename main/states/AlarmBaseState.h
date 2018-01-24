@@ -53,7 +53,34 @@ class AlarmBaseState
         }
 
     protected:
+
+        void roll_color(uint8_t r, uint8_t g, uint8_t b)
+        {
+            fsm.clear_rgb();
+            fsm.set_pixel(static_cast<uint16_t>(led++ % 5), 0, 33, 0);
+            if(fsm.is_network_connected())
+            {
+                fsm.set_pixel(static_cast<uint16_t>(4), 0, 33, 0);
+            }
+            else
+            {
+                fsm.set_pixel(static_cast<uint16_t>(4), 33, 0, 0);
+            }
+
+            if(fsm.is_mqtt_connected())
+            {
+                fsm.set_pixel(static_cast<uint16_t>(3), 0, 33, 0);
+            }
+            else
+            {
+                fsm.set_pixel(static_cast<uint16_t>(3), 33, 0, 0);
+            }
+
+            fsm.apply_rgb();
+        }
+
         AlarmFSM<AlarmBaseState>& fsm;
     private:
         std::string name;
+        uint16_t led = 0;
 };

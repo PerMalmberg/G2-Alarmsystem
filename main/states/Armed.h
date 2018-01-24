@@ -26,7 +26,6 @@ class Armed
         void event(const AnalogValueOutsideLimits& event) override;
         void event(const DigitalValueNotIdle& event) override;
     private:
-        uint16_t led = 0;
         smooth::core::timer::ElapsedTime entry_delay{};
         std::chrono::seconds entry_delay_limit{};
 

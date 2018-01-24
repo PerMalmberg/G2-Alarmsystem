@@ -24,7 +24,6 @@ class PreArmCheck
 
     private:
         smooth::core::timer::ElapsedTime elapsed{};
-        uint16_t led = 0;
 
 };
 

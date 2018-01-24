@@ -17,5 +17,4 @@ class Idle
         void arm() override;
         void tick() override ;
     private:
-        uint16_t led = 0;
 };

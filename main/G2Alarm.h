@@ -25,7 +25,7 @@
 #include "states/AlarmFSM.h"
 #include "ArmByNumber.h"
 #include "IAlarmState.h"
-#include "status_indication/StatusIndicator.h"
+#include "sound_indication/SongPlayer.h"
 
 class G2Alarm
         : public smooth::core::Application,
@@ -60,7 +60,6 @@ class G2Alarm
 
     private:
         smooth::core::io::Output level_shifter_enable;
-
         Wiegand control_panel;
         Config cfg;
         ArmByNumber arm_by_number;
@@ -75,8 +74,7 @@ class G2Alarm
         smooth::core::timer::ElapsedTime mqtt_send_period{};
         AlarmFSM<AlarmBaseState> fsm;
         std::string current_zone{};
-        StatusIndicator status_indicator{};
-
+        SongPlayer song_player{};
 
         void read_configuration();
 
