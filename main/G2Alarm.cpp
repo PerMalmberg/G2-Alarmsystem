@@ -3,13 +3,16 @@
 //
 
 #include "G2Alarm.h"
+#include "OutputNumber.h"
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/filesystem/File.h>
 #include <states/Idle.h>
 #include <smooth/core/json/Value.h>
+#include <smooth/core/ipc/Publisher.h>
 
 using namespace std::chrono;
 using namespace smooth::core;
+using namespace smooth::core::ipc;
 using namespace smooth::core::io;
 using namespace smooth::core::logging;
 using namespace smooth::core::util;
@@ -208,11 +211,12 @@ void G2Alarm::tick()
 
     if (mqtt_send_period.get_running_time() > seconds(1))
     {
+        mqtt_send_period.reset();
+
         mqtt.publish(get_name() + "/status/uptime",
                      msg,
                      QoS::AT_MOST_ONCE,
                      false);
-        mqtt_send_period.reset();
 
         mqtt.publish(get_name() + "/status/state",
                      fsm.get_state_name(),
@@ -223,6 +227,11 @@ void G2Alarm::tick()
                      get_current_zone(),
                      QoS::AT_MOST_ONCE,
                      false);
+
+        static bool blink = false;
+        blink = !blink;
+        I2CSetOutput b(BLINKY, blink);
+        Publisher<I2CSetOutput>::publish(b);
     }
 
     fsm.tick();

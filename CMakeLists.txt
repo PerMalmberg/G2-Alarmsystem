@@ -61,7 +61,8 @@ set(SOURCE_FILES
         main/sound_indication/DisarmSong.cpp
         main/sound_indication/DisarmSong.h
         main/sound_indication/EntryDelaySong.cpp
-        main/sound_indication/EntryDelaySong.h)
+        main/sound_indication/EntryDelaySong.h
+        main/OutputNumber.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_subdirectory(components/Smooth)

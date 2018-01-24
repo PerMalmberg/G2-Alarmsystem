@@ -5,18 +5,18 @@
 #include <chrono>
 #include <I2CSetOutputCmd.h>
 #include <smooth/core/ipc/Publisher.h>
-#include <I2CSetOutputCmd.h>
 #include "Tripped.h"
 #include "Idle.h"
 #include <sound_indication/TrippedSong.h>
 #include <sound_indication/Silence.h>
+#include "OutputNumber.h"
 
 using namespace smooth::core::ipc;
 using namespace std::chrono;
 
 void Tripped::enter_state()
 {
-    I2CSetOutput s(0, true);
+    I2CSetOutput s(SIREN, true);
     Publisher<I2CSetOutput>::publish(s);
 
     max_time.start();
@@ -28,7 +28,7 @@ void Tripped::leave_state()
 
     Publisher<Song>::publish(Silence());
 
-    I2CSetOutput s(0, false);
+    I2CSetOutput s(SIREN, false);
     Publisher<I2CSetOutput>::publish(s);
 }
 
