@@ -5,7 +5,7 @@
 class AlarmBaseState
 {
     public:
-        explicit AlarmBaseState(AlarmFSM<AlarmBaseState>& fsm, const std::string& name) : fsm(fsm), name(name)
+        explicit AlarmBaseState(AlarmFSM<AlarmBaseState>& fsm, std::string name) : fsm(fsm), name(std::move(name))
         {
         }
 
