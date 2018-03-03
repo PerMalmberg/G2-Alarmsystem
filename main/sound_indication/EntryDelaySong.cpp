@@ -10,6 +10,9 @@ using namespace std::chrono;
 EntryDelaySong::EntryDelaySong()
         : Song(true)
 {
-    add(Tone(true, milliseconds(300)));
-    add(Tone(false, milliseconds(300)));
+    for (auto i = 0; i < 2; ++i) {
+        add(Tone(true, milliseconds(500)));
+        add(Tone(false, milliseconds(500)));
+    }
+    add(Tone(false, seconds(10)));
 }
