@@ -13,7 +13,6 @@ void Idle::arm()
 
 void Idle::enter_state()
 {
-    Publisher<Song>::publish(Silence());
 }
 
 void Idle::tick()
